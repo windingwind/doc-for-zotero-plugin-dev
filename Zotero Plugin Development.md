@@ -49,7 +49,7 @@ To install the plugin, from the settings (⚙️) menu in the Plugins Manager, c
 
 After the plugin is successfully installed and enabled, you can see the text in the items list and the library list are turned to red, as indicated by the example plugin's name _Make-It-Red_.
 
-![[Pasted image 20240924214631.png]]
+![Run Plugin Result](run-plugin.png)
 
 #### 1.3.2.2 Load from Source
 
@@ -82,7 +82,7 @@ In the menu bar, click `Tools` -> `Developer` -> `Run JavaScript`. Type the code
 > 💡 Try this out!
 > Select an item in the library, then run `ZoteroPane.getSelectedItems()[0]` in the _Run JavaScript_ window.
 
-![[Pasted image 20240924224213.png]]
+![Run JS window](run-js.png)
 
 > 🔗 For more details about the _Run JavaScript_ window, see [Running Ad Hoc JavaScript in Zotero](https://www.zotero.org/support/dev/client_coding/javascript_api#running_ad_hoc_javascript_in_zotero).
 
@@ -109,7 +109,7 @@ Zotero 7 beta builds include the Firefox 115 devtools. To start a beta build wit
 
 When running Zotero from source, passing `-d` flag to the [build_and_run script](https://www.zotero.org/support/dev/client_coding/building_the_desktop_app#helper_script "dev:client_coding:building_the_desktop_app") will rebuild (`-r`) with the devtools included and pass `-jsdebugger`.
 
-![[Pasted image 20240924220344.png]]
+![DevTools](devtools.png)
 
 > 💡 Try this out!
 > Run `Zotero.getMainWindow().console.log("Hello, World!")` from the Run JS window and check the devtools' console.
