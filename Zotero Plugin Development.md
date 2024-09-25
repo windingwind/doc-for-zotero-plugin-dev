@@ -186,13 +186,87 @@ Explanation of the fields in the `manifest.json` file are as follows. The fields
 - `version`\*: The version of the plugin. The version number should follow [this](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version) format.
 - `description`: A brief description of the plugin. It will be shown in the _Plugin Manager_.
 - `homepage_url`: The URL of the plugin's homepage. It will be shown in the _Plugin Manager_.
-- `applications/zotero`\*: The application-specific information. Only the `zotero` key of the `applications` object is supported.
+- `applications/zotero`\*: The application-specific information. It is based on [browser_specific_settings.gecko](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings) and must be present for Zotero to install your plugin.
   - `id`\*: The unique identifier for the plugin. It should be in the format of `myplugin@mydomain.org`.
   - `update_url`: The URL of the update manifest. See also [Plugin Update](#142-plugin-update).
-  - `strict_min_version`: The minimum version of Zotero that the plugin is compatible with.
+  - `strict_min_version`: The minimum version of Zotero that the plugin is compatible with. You should set it to `x.x.*` of the latest Zotero minor version that you have tested your plugin with.
   - `strict_max_version`: The maximum version of Zotero that the plugin is compatible with.
 
 #### 1.4.1.2 bootstrap.js
+
+The `bootstrap.js` file is the main script file for the plugin. It is executed in the plugin's lifecycle, such as when the plugin is loaded, unloaded, or updated.
+
+A `bootstrap.js` file containing functions to handle various events:
+
+- Plugin lifecycle hooks
+- Window hooks
+
+![lifecycle](lifecycle.png)
+
+**Plugin lifecycle hooks**
+
+Plugin lifecycle hooks are modeled after the legacy Mozilla [bootstrapped-extension framework](http://www.devdoc.net/web/developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Bootstrapped_Extensions.html#Bootstrap_entry_points "http://www.devdoc.net/web/developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Bootstrapped_Extensions.html#Bootstrap_entry_points"):
+
+- `startup()`
+- `shutdown()`
+- `install()`
+- `uninstall()`
+
+Plugin lifecycle hooks are passed two parameters:
+
+- An object with these properties:
+  - `id`, a string of the plugin id
+  - `version`, a string of the plugin version
+  - `rootURI`, a string URL pointing to the plugin's files. For XPIs, this will be a `jar:file:///` URL. This value will always end in a slash, so you can append a relative path to get a URL for a file bundled with your plugin (e.g., `rootURI + 'style.css'`).
+- A number representing the reason for the event, which can be checked against the following constants: `APP_STARTUP`, `APP_SHUTDOWN`, `ADDON_ENABLE`, `ADDON_DISABLE`, `ADDON_INSTALL`, `ADDON_UNINSTALL`, `ADDON_UPGRADE`, `ADDON_DOWNGRADE`
+
+Any initialization unrelated to specific windows should be triggered by `startup`, and removal should be triggered by `shutdown`.
+
+The `install()` and `startup()` bootstrap methods are called only after Zotero has initialized, and the `Zotero` object is automatically made available in the bootstrap scope, along with `Services`, `Cc`, `Ci`, and other Mozilla and browser objects.
+
+Bootstrapped plugins can be disabled or uninstalled without restarting Zotero, so you'll need to make sure you remove all functionality in the `shutdown()` function.
+
+**Window Hooks**
+
+Window hooks, available only in Zotero 7, are called on the opening and closing of the main Zotero window:
+
+- `onMainWindowLoad()`
+- `onMainWindowUnload()`
+
+Window hooks are passed one parameter:
+
+- An object with a `window` property containing the target window
+
+Main windows might already be opened when the plugin is loaded, in which case `onMainWindowLoad` will not be called for those windows. You should always check for the existence of any main windows and call it manually if necessary.
+
+```javascript
+// In bootstrap.js
+async function startup(data, reason) {
+  // Do any initialization that should happen when the plugin is loaded
+
+  // After initialization, call onMainWindowLoad for any existing main windows
+  await Promise.all(
+    Zotero.getMainWindows().map((win) => onMainWindowLoad(win))
+  );
+}
+```
+
+On some platforms, the main window can be opened and closed multiple times during a Zotero session, so any window-related activities, such as modifying the main UI, adding menus, or binding shortcuts must be performed by `onMainWindowLoad` so that new main windows contain your changes.
+
+You must then **remove all references to a window or objects within it, cancel any timers, etc.**, when `onMainWindowUnload` is called, or else you'll risk creating a memory leak every time the window is closed. DOM elements added to a window will be automatically destroyed when the window is closed, so you only need to remove those in `shutdown()`, which you can do by cycling through all windows:
+
+```javascript
+function shutdown() {
+  var windows = Zotero.getMainWindows();
+  for (let win of windows) {
+    win.document.getElementById("make-it-red-stylesheet")?.remove();
+  }
+}
+```
+
+> Currently, only one main window is supported, but some users may find ways to open multiple main windows, and this will be officially supported in a future version.
+
+Some plugins may require additional hooks in Zotero itself to work well as bootstrapped plugins. If you're having trouble accomplishing something you were doing previously via XUL overlays, let us know on [zotero-dev](https://groups.google.com/g/zotero-dev "https://groups.google.com/g/zotero-dev").
 
 #### 1.4.1.3 Locale
 
