@@ -45,7 +45,7 @@ The build results are `build/make-it-red-2.0.xpi`.
 
 ### 1.3.2 Running the Plugin
 
-#### 1.3.2.1 Manually Install
+#### 1.3.2.1 Installing Manually
 
 For plugin developers, it's always recommended to use [Beta Builds](https://www.zotero.org/support/beta_builds).
 
@@ -59,7 +59,7 @@ After the plugin is successfully installed and enabled, you can see the text in 
 
 ![Run Plugin Result](run-plugin.png)
 
-#### 1.3.2.2 Load from Source Code
+#### 1.3.2.2 Loading from Source Code
 
 It could be annoying to manually install the plugin every time you make a change. You can load the plugin from the source code directly. Every time you start Zotero, the plugin will be loaded using the latest code.
 
@@ -82,7 +82,7 @@ After creating your plugin's source directory with sample code, you can tell Zot
 
 ### 1.3.3 Debugging the Plugin
 
-#### 1.3.3.1 Use _Run JavaScript_ Window
+#### 1.3.3.1 _Run JavaScript_ Window
 
 To run JavaScript in Zotero, the easiest way is using the _Run JavaScript_ window.
 
@@ -96,7 +96,7 @@ In the menu bar, click `Tools` -> `Developer` -> `Run JavaScript`. Type the code
 
 > 🔗 For more details about the _Run JavaScript_ window, see [Running Ad Hoc JavaScript in Zotero](https://www.zotero.org/support/dev/client_coding/javascript_api#running_ad_hoc_javascript_in_zotero).
 
-#### 1.3.3.2 Use Debug Output
+#### 1.3.3.2 Debug Output
 
 Zotero has a built-in debug output system that are more friendly to users for providing feedback and debugging information.
 
@@ -112,7 +112,7 @@ Plugin developers can use the `Zotero.debug` function to output messages to the 
 
 Although it's not possible for plugin developers to access users' debug output using the Debug ID, you can ask users to enable debug output, reproduce the issue, and send you the debug output.
 
-#### 1.3.3.3 Use DevTools
+#### 1.3.3.3 DevTools
 
 Since Zotero is based on Firefox, it's possible to use the Firefox Developer Tools to interact with the DOM, set code breakpoints, follow network requests, and more.
 
@@ -201,6 +201,8 @@ A `bootstrap.js` file containing functions to handle various events:
 - Plugin lifecycle hooks
 - Window hooks
 
+The figure below shows the lifecycle of a plugin and how the hooks are called.
+
 ![lifecycle](lifecycle.png)
 
 **Plugin lifecycle hooks**
@@ -269,6 +271,60 @@ function shutdown() {
 Some plugins may require additional hooks in Zotero itself to work well as bootstrapped plugins. If you're having trouble accomplishing something you were doing previously via XUL overlays, let us know on [zotero-dev](https://groups.google.com/g/zotero-dev "https://groups.google.com/g/zotero-dev").
 
 #### 1.4.1.3 Locale
+
+Mozilla has introduced a new localization system called [Fluent](https://projectfluent.org/ "https://projectfluent.org/"), which replaces both `.dtd` and `.properties` localization. While both `.dtd` and `.properties` are still supported in the current version of Zotero 7, `.dtd` files and `.properties` files will be remove in the future. To ensure future compatibility, plugin should aim to use Fluent for localization going forward.
+
+See the [Fluent Syntax Guide](https://projectfluent.org/fluent/guide/ "https://projectfluent.org/fluent/guide/") for more information on creating Fluent files.
+
+**Registering Fluent Files**
+
+To use Fluent in your plugin, create a `locale` folder in your plugin root with subfolders for each locale, and place `.ftl` files within each locale folder:
+
+```
+locale/en-US/make-it-red.ftl
+locale/fr-FR/make-it-red.ftl
+locale/zh-CN/make-it-red.ftl
+```
+
+Any `.ftl` files you place in the locale subfolders will be automatically registered in Zotero's localization system.
+
+**Using a Fluent File in a Document**
+
+Fluent files you include with your plugin can be applied to a document with a `<link>` element.
+
+For example, a Fluent file located at
+
+```
+[plugin root]/locale/en-US/make-it-red.ftl
+```
+
+could be included in an XHTML file as
+
+```html
+<link rel="localization" href="make-it-red.ftl" />
+```
+
+If the document's default namespace is XUL, include HTML as an alternative namespace (`xmlns:html="http://www.w3.org/1999/xhtml"`) and prefix the link:
+
+```html
+<html:link rel="localization" href="make-it-red.ftl" />
+```
+
+If modifying an existing window, you can create a `<link>` element dynamically:
+
+```javascript
+MozXULElement.insertFTLIfNeeded("make-it-red.ftl");
+```
+
+(`MozXULElement` will be a property of the window you're modifying.)
+
+Please ensure that you have inserted the FTL into the window before making any changes to the DOM.
+
+If adding to an existing window, be sure to remove the `<link>` in your plugin's `shutdown` function:
+
+```javascript
+doc.querySelector('[href="make-it-red.ftl"]').remove();
+```
 
 ### 1.4.2 Plugin Update
 
