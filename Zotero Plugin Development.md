@@ -2,7 +2,7 @@
 
 ## 1.1 What is Zotero Plugin
 
-Plugins can customize the experience of using Zotero and enhance its capability by adding functions and features to Zotero. A Zotero plugin is created with web technologies: [HTML]([HTML: HyperText Markup Language | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/HTML)), [CSS]([CSS: Cascading Style Sheets | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/CSS)), and [JavaScript]([JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)).
+Plugins can customize the experience of using Zotero and enhance its capability by adding functions and features to Zotero. A Zotero plugin is created with web technologies: [HTML (HyperText Markup Language)](https://developer.mozilla.org/en-US/docs/Web/HTML), [CSS (Cascading Style Sheets)](https://developer.mozilla.org/en-US/docs/Web/CSS), and [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
 
 The Zotero plugin has a similar structure of browser's web-extension, while developing a Zotero plugin is quite different from developing a browser extension. As a desktop application, Zotero allows plugins to be very flexible and powerful, like using Zotero database, accessing local files, and communicating with other applications.
 
@@ -58,9 +58,9 @@ It could be annoying to manually install the plugin every time you make a change
 After creating your plugin's source directory with sample code, you can tell Zotero to load the plugin by creating an extension proxy file. (This is a technique that used to be possible for Firefox extension development, though it's since been discontinued in Firefox.)
 
 1. Close Zotero.
-2. Create a text file in the 'extensions' directory of your Zotero profile directory named after the extension id (e.g., myplugin@mydomain.org). The file contents should be the absolute path to the root of your plugin source code directory, where your install.rdf or bootstrap.js file is located.
-3. Open prefs.js in the Zotero profile directory in a text editor and delete the lines containing extensions.lastAppBuildId and extensions.lastAppVersion. Save the file and restart Zotero. This will force Zotero to read the 'extensions' directory and install your plugin from source, after which you should see it listed in Tools → Add-ons. This is only necessary once.
-4. Whenever you make changes to your plugin code, start up Zotero from the command line and pass the `-purgecaches` flag to force Zotero to re-read any cached files. (This may no longer be necessary with Zotero 7.) You'll likely want to make an alias or shell script that also includes the `-ZoteroDebugText` and `-jsconsole` flags and perhaps -p \<Profile\>, where \<Profile\> is the name of a development profile.
+2. Create a text file in the 'extensions' directory of your Zotero profile directory named after the extension id (e.g., `myplugin@mydomain.org`). The file contents should be the absolute path to the root of your plugin source code directory, where your `manifest.json` or `bootstrap.js` file is located.
+3. Open `prefs.js` in the Zotero profile directory in a text editor and delete the lines containing `extensions.lastAppBuildId` and `extensions.lastAppVersion`. Save the file and restart Zotero. This will force Zotero to read the 'extensions' directory and install your plugin from source, after which you should see it listed in Tools → Add-ons. This is only necessary once.
+4. Whenever you make changes to your plugin code, start up Zotero from the command line and pass the `-purgecaches` flag to force Zotero to re-read any cached files. (This may no longer be necessary with Zotero 7.) You'll likely want to make an alias or shell script that also includes the `-ZoteroDebugText` and `-jsconsole` flags and perhaps `-p <Profile>`, where `<Profile>` is the name of a development profile.
 
 > 💡 Try this out!
 > After setting up the development environment, make a change to the plugin code and see the result in Zotero.
@@ -100,7 +100,7 @@ Zotero 7 beta builds include the Firefox 115 devtools. To start a beta build wit
 
 ```bash
 # the /path/to/zotero differs in different platforms.
-# For MacOS:
+# For macOS:
 # /Applications/Zotero.app/Contents/MacOS/zotero
 # For Windows:
 # C:\Program Files (x86)\Zotero\zotero.exe
