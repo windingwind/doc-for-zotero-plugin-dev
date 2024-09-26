@@ -358,6 +358,20 @@ For most developers, the initial motivation to develop a plugin is to solve a pr
 
 ## 2.5 Privileged v.s Unprivileged
 
+## 2.6 Reader
+
+### 2.6.1 `Reader` vs `ReaderInstance`
+
+![uml](./uml_reader.png)
+
+### 2.6.2 Views
+
+#### 2.6.2.1 Snapshot View
+
+#### 2.6.2.2 ePub View
+
+#### 2.6.2.3 PDF View
+
 # 3 UX Guidelines
 
 ## 3.1 Zotero Pane
