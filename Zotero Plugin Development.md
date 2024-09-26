@@ -399,7 +399,7 @@ This relation can be described as follows:
 
 ![Data Model Example](data-model-example.png)
 
-Each data class has a corresponding plural object for managing instances of the class. For example, `Zotero.Items` is the object for managing `Zotero.Item` instances. You can use these plural objects to create, retrieve, update, and delete the corresponding data objects.
+Each data class has a corresponding object for managing instances of the class. For example, `Zotero.Items` is the object for managing `Zotero.Item` instances. You can use these plural objects to create, retrieve, update, and delete the corresponding data objects.
 
 For example, you can get a `Zotero.Item` instance by its key using the object `Zotero.Items`:
 
@@ -409,7 +409,7 @@ let item = Zotero.Items.get(itemID);
 
 The table below shows the class and its corresponding plural object:
 
-| Class               | Object (plural)      |
+| Class               | Manager Object       |
 | ------------------- | -------------------- |
 | `Zotero.DataObject` | `Zotero.DataObjects` |
 | `Zotero.Collection` | `Zotero.Collections` |
@@ -422,11 +422,29 @@ The table below shows the class and its corresponding plural object:
 
 ### 2.2.1 Library
 
-**Library** is the place where all types of data are stored.
+All items and collections in Zotero belongs to a **Library**. There are three types of libraries in Zotero:
 
 - User Library
 - Group
 - Feed
+
+Each library has a unique `id` and, which can be used to get the library instance.
+
+The user library is the default library that contains all the items and collections created by the user. The user library ID can be retrieved using `Zotero.Libraries.userLibraryID`.
+
+```javascript
+// The user library ID
+let libraryID = Zotero.Libraries.userLibraryID;
+// Get the library by ID
+let library = Zotero.Libraries.get(libraryID);
+// Print the library ID
+Zotero.debug(library.id);
+// Print the library type, which is "user" for the user library.
+// Can be "group" or "feed" for other types of libraries.
+Zotero.debug(library.type);
+```
+
+You can get all the libraries using `Zotero.Libraries.getAll()`.
 
 ### 2.2.2 Data Object
 
