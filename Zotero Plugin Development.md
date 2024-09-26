@@ -194,7 +194,7 @@ Explanation of the fields in the `manifest.json` file are as follows. The fields
 
 #### 1.4.1.2 bootstrap.js
 
-The `bootstrap.js` file is the main script file for the plugin. It is executed in the plugin's lifecycle, such as when the plugin is loaded, unloaded, or updated.
+The `bootstrap.js` file is the main script file for the plugin. It is executed in the plugin's lifecycle, such as when the plugin is loaded, unloaded, or updated. It must be in the root directory of the plugin.
 
 A `bootstrap.js` file containing functions to handle various events:
 
@@ -328,11 +328,33 @@ doc.querySelector('[href="make-it-red.ftl"]').remove();
 
 ### 1.4.2 Plugin Update
 
-The update manifests are set up to demonstrate upgrading across all versions, but normally a plugin would point to a single update manifest that was updated as new versions were available. The update manifests for versions 1.1 and 1.2 are set up to allow upgrading directly to 2.0 from Zotero 7.
+The update manifests are set up to demonstrate upgrading across all versions, but normally a plugin would point to a single update manifest that was updated as new versions were available.
 
-## 1.5 Conclusion
+Zotero uses a [Mozilla-style JSON update manifest](https://extensionworkshop.com/documentation/manage/updating-your-extension/ "https://extensionworkshop.com/documentation/manage/updating-your-extension/"). It must be in the root directory of the plugin.
 
-For most developers, the initial motivation to develop a plugin is to solve a problem they have encountered, or to satisfy a need they have. Very possibly, someone else has the similar problem or need, and your plugin could be useful to them. We encourage you to share your plugin with the community.
+Here is the official plugin example's update manifest:
+
+```json
+{
+  "addons": {
+    // The plugin id
+    "make-it-red@zotero.org": {
+      "updates": [
+        {
+          "version": "2.0", // The version of the plugin
+          "update_link": "https://download.zotero.org/plugins/make-it-red/make-it-red-2.0.xpi", // The URL of the XPI file
+          "update_hash": "sha256:4a6dd04c197629a02a9c6beaa9ebd52a69bb683f8400243bcdf95847f0ee254a", // The hash of the XPI file
+          "applications": {
+            "zotero": {
+              "strict_min_version": "6.999" // The minimum version of Zotero that the plugin is compatible with
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 # 2 Concepts
 
