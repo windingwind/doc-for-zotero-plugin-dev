@@ -340,17 +340,37 @@ For most developers, the initial motivation to develop a plugin is to solve a pr
 
 ## 2.2 Zotero Data Model
 
+| Class | Object (plural) |
+| --- | --- |
+| `Zotero.DataObject` | `Zotero.DataObjects` |
+| `Zotero.Collection` | `Zotero.Collections` |
+| `Zotero.Search` | `Zotero.Searches` |
+| `Zotero.Item` | `Zotero.Items` |
+| `Zotero.FeedItem` | `Zotero.FeedItems` |
+| `Zotero.Library` | `Zotero.Libraries` |
+| `Zotero.Group` | `Zotero.Groups` |
+| `Zotero.Feed` | `Zotero.Feeds` |
+
 ### 2.2.1 Library
 
-### 2.2.2 Collection
+- User Library
+- Group
+- Feed
 
-### 2.2.3 Item
+### 2.2.2 Data Object
 
-### 2.2.4 Attachment Item
+![uml](./uml_dataObject.png)
 
-### 2.2.5 Note Item
+#### 2.2.2.1 Collection
 
-### 2.2.6 Annotation Item
+#### 2.2.2.2 Search
+
+#### 2.2.2.3 Item
+
+- Regular Item
+- Attachment Item
+- Note Item
+- Annotation Item
 
 ## 2.3 Persisted Settings
 
