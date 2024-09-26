@@ -448,7 +448,27 @@ You can get all the libraries using `Zotero.Libraries.getAll()`.
 
 ### 2.2.2 Data Object
 
+The `Zotero.DataObject` class is the base class for all data objects, including `Zotero.Collection`, `Zotero.Item`, `Zotero.Search`.
+
+Each data object has a unique `key` (string) and a `id` (number).
+
+> ❗️ Do not rely on the `id` for identifying the data object!
+>
+> The `key` is unique across all devices, while the `id` is unique within the local database. In extreme cases, the `id` can be changed, but the `key` always remain the same.
+
+Other important shared properties include:
+
+- `libraryID`: indicates which library the data object belongs to.
+- `objectType`: indicates the type of the data object. Can be `collection`, `item`, `search`, etc.
+- `version`: indicates the version of the data object. The version is incremented every time the data object is updated.
+
+Each time you modify a data object, you should call the `save()` or `saveTx()` method to save the changes to the database. We'll cover this in more detail in the following sections.
+
+Besides the shared properties and methods, different types of data objects have their own properties and methods. The inheritance relationship is shown in the following UML diagram:
+
 ![uml](./uml_dataObject.png)
+
+We'll discuss the different types of data objects in the following sections.
 
 ### 2.2.3 Collection
 
