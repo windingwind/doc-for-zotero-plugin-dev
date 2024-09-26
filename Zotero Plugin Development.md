@@ -456,13 +456,29 @@ Each data object has a unique `key` (string) and a `id` (number).
 >
 > The `key` is unique across all devices, while the `id` is unique within the local database. In extreme cases, the `id` can be changed, but the `key` always remain the same.
 
-Other important shared properties include:
+Other important shared properties and methods include:
 
 - `libraryID`: indicates which library the data object belongs to.
 - `objectType`: indicates the type of the data object. Can be `collection`, `item`, `search`, etc.
 - `version`: indicates the version of the data object. The version is incremented every time the data object is updated.
+- `save()` and `saveTx()`: saves the changes to the database.
+- `erase()` and `eraseTx()`: deletes the data object from the database.
+
+To create a new data object, you can use the `new` keyword:
+
+```javascript
+let item = new Zotero.Item();
+```
 
 Each time you modify a data object, you should call the `save()` or `saveTx()` method to save the changes to the database. We'll cover this in more detail in the following sections.
+
+> ❓ What is the difference between `save()` and `saveTx()`?
+>
+> The `saveTx()` creates a transaction for saving the changes, while the `save()` should be called inside a transaction. For multiple changes in one transaction, they will be saved together when the transaction is committed.
+>
+> The `save()` is useful when you have multiple changes to save together.
+>
+> For `erase()` and `eraseTx()`, the same principle applies.
 
 Besides the shared properties and methods, different types of data objects have their own properties and methods. The inheritance relationship is shown in the following UML diagram:
 
@@ -471,6 +487,39 @@ Besides the shared properties and methods, different types of data objects have 
 We'll discuss the different types of data objects in the following sections.
 
 ### 2.2.3 Collection
+
+A **Collection** contains a group of items and other collections.
+
+Besides the shared properties and methods of a data object, a collection object has the following important properties:
+
+- `name`: the name of the collection.
+- `parent`: the parent collection of the collection. If the collection is a top-level collection, the parent is `null`.
+- `parentKey`: the key of the parent collection.
+- `parentID`: the ID of the parent collection.
+- `getChildCollections()`: gets the child collections of the collection.
+- `getChildItems()`: gets the items in the collection.
+- `addItem()`/`addItems()`: adds an item or items to the collection.
+- `removeItem()`/`removeItems()`: removes an item or items from the collection.
+
+The `Zotero.Collections` object is used to manage collection objects. Here are some examples of how to use the `Zotero.Collections` object:
+
+```javascript
+// Get all collections in the user library
+let collections = Zotero.Collections.getByLibrary(
+  Zotero.Libraries.userLibraryID
+);
+// Get the collection by key
+let collection = Zotero.Collections.getByLibraryAndKey(
+  Zotero.Libraries.userLibraryID,
+  collections[0].key
+);
+// Get the collection by ID
+collection = Zotero.Collections.get(collection.id);
+// Get child items of the collection
+let itemIDs = collection.getChildItems().map((item) => item.id);
+// Get collections containing the items
+collections = await Zotero.Collections.getCollectionsContainingItems(itemIDs);
+```
 
 ### 2.2.4 Search
 
@@ -536,3 +585,11 @@ We'll discuss the different types of data objects in the following sections.
 ## 4.7 Worker
 
 ## 4.8 File I/O
+
+```
+
+```
+
+```
+
+```
