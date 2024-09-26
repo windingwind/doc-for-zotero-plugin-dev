@@ -201,9 +201,7 @@ A `bootstrap.js` file containing functions to handle various events:
 - Plugin lifecycle hooks
 - Window hooks
 
-The figure below shows the lifecycle of a plugin and how the hooks are called.
-
-![lifecycle](lifecycle.png)
+> 🔗 For more details, see [Plugin Lifecycle](#21-plugin-lifecycle).
 
 **Plugin lifecycle hooks**
 
@@ -358,7 +356,36 @@ Here is the official plugin example's update manifest:
 
 # 2 Concepts
 
+In this section, we'll introduce some key concepts of Zotero plugin development, including the plugin lifecycle, Zotero data model, persisted settings, notifier events, privileged v.s unprivileged, and reader.
+
 ## 2.1 Plugin LifeCycle
+
+Each plugin goes through a lifecycle, from being loaded to being unloaded. During this lifecycle, it runs a series of hooks that allow the plugin to perform actions at specific points in time.
+
+| Hook                 | Called when...                                                                   | Description                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `install`            | Called when the plugin is manually installed or updated                          | Perform any necessary setup. Should not be used for actual tasks. The plugin is not yet running. |
+| `startup`            | Called when the plugin is loaded                                                 | Perform any necessary initialization. The plugin is now running.                                 |
+| `shutdown`           | Called when the plugin is unloaded                                               | Perform any necessary cleanup. The plugin will not be running.                                   |
+| `uninstall`          | Called when the plugin is manually uninstalled                                   | Perform any necessary cleanup. The plugin is no longer running.                                  |
+| `onMainWindowLoad`   | Called when the main Zotero main window is opened. May be called multiple times. | Perform any necessary initialization for the main window. The window is now open.                |
+| `onMainWindowUnload` | Called when the main Zotero main window is closed. May be called multiple times. | Perform any necessary cleanup for the main window. The window is now closed.                     |
+
+The figure below shows the lifecycle of a plugin and how the hooks are called.
+
+![lifecycle](lifecycle.png)
+
+> 💡 Try this out!
+>
+> Add the following line to the `bootstrap.js` file's `startup()` function of the example plugin, then apply the changes and restart Zotero with debug output enabled.
+>
+> ```javascript
+> Zotero.debug("Hello, World! The plugin is loaded.");
+> ```
+>
+> Check the debug output to see if the message is printed when the plugin is loaded.
+>
+> Disable and then enable the plugin in the _Plugins Manager_ to see if the message is printed again.
 
 ## 2.2 Zotero Data Model
 
