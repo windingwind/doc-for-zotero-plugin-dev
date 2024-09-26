@@ -362,16 +362,16 @@ Here is the official plugin example's update manifest:
 
 ## 2.2 Zotero Data Model
 
-| Class | Object (plural) |
-| --- | --- |
+| Class               | Object (plural)      |
+| ------------------- | -------------------- |
 | `Zotero.DataObject` | `Zotero.DataObjects` |
 | `Zotero.Collection` | `Zotero.Collections` |
-| `Zotero.Search` | `Zotero.Searches` |
-| `Zotero.Item` | `Zotero.Items` |
-| `Zotero.FeedItem` | `Zotero.FeedItems` |
-| `Zotero.Library` | `Zotero.Libraries` |
-| `Zotero.Group` | `Zotero.Groups` |
-| `Zotero.Feed` | `Zotero.Feeds` |
+| `Zotero.Search`     | `Zotero.Searches`    |
+| `Zotero.Item`       | `Zotero.Items`       |
+| `Zotero.FeedItem`   | `Zotero.FeedItems`   |
+| `Zotero.Library`    | `Zotero.Libraries`   |
+| `Zotero.Group`      | `Zotero.Groups`      |
+| `Zotero.Feed`       | `Zotero.Feeds`       |
 
 ### 2.2.1 Library
 
