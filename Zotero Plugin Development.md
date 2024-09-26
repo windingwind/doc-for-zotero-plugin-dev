@@ -389,6 +389,26 @@ The figure below shows the lifecycle of a plugin and how the hooks are called.
 
 ## 2.2 Zotero Data Model
 
+Zotero has a unified data model that represents all types of data in Zotero.
+
+For developers, the data model is based on the concept of data objects, which are instances of classes that represent different types of data.
+
+For example, a PDF file will be represented by an attachment `Item` object (instance of `Zotero.Item`), which usually belongs to a regular `Item` object (instance of `Zotero.Item`). This item can be in multiple `Collection` objects (instance of `Zotero.Collection`). Eventually, all these data objects are stored in a `Library` (instance of `Zotero.Library`).
+
+This relation can be described as follows:
+
+![Data Model Example](data-model-example.png)
+
+Each data class has a corresponding plural object for managing instances of the class. For example, `Zotero.Items` is the object for managing `Zotero.Item` instances. You can use these plural objects to create, retrieve, update, and delete the corresponding data objects.
+
+For example, you can get a `Zotero.Item` instance by its key using the object `Zotero.Items`:
+
+```javascript
+let item = Zotero.Items.get(itemID);
+```
+
+The table below shows the class and its corresponding plural object:
+
 | Class               | Object (plural)      |
 | ------------------- | -------------------- |
 | `Zotero.DataObject` | `Zotero.DataObjects` |
@@ -402,6 +422,8 @@ The figure below shows the lifecycle of a plugin and how the hooks are called.
 
 ### 2.2.1 Library
 
+**Library** is the place where all types of data are stored.
+
 - User Library
 - Group
 - Feed
@@ -410,11 +432,11 @@ The figure below shows the lifecycle of a plugin and how the hooks are called.
 
 ![uml](./uml_dataObject.png)
 
-#### 2.2.2.1 Collection
+### 2.2.3 Collection
 
-#### 2.2.2.2 Search
+### 2.2.4 Search
 
-#### 2.2.2.3 Item
+### 2.2.5 Item
 
 - Regular Item
 - Attachment Item
