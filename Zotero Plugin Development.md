@@ -257,7 +257,7 @@ You must then **remove all references to a window or objects within it, cancel 
 
 ```javascript
 function shutdown() {
-  var windows = Zotero.getMainWindows();
+  let windows = Zotero.getMainWindows();
   for (let win of windows) {
     win.document.getElementById("make-it-red-stylesheet")?.remove();
   }
@@ -328,7 +328,9 @@ doc.querySelector('[href="make-it-red.ftl"]').remove();
 
 The update manifests are set up to demonstrate upgrading across all versions, but normally a plugin would point to a single update manifest that was updated as new versions were available.
 
-Zotero uses a [Mozilla-style JSON update manifest](https://extensionworkshop.com/documentation/manage/updating-your-extension/ "https://extensionworkshop.com/documentation/manage/updating-your-extension/"). It must be in the root directory of the plugin.
+Zotero uses a [Mozilla-style JSON update manifest](https://extensionworkshop.com/documentation/manage/updating-your-extension/ "https://extensionworkshop.com/documentation/manage/updating-your-extension/").
+
+The update manifest JSON is not included in the plugin XPI file. It should be hosted online, and the URL should be specified in the plugin's `update_url` field in the `manifest.json` file of the plugin.
 
 Here is the official plugin example's update manifest:
 
@@ -404,8 +406,14 @@ Each data class has a corresponding object for managing instances of the class. 
 For example, you can get a `Zotero.Item` instance by its key using the object `Zotero.Items`:
 
 ```javascript
-let item = Zotero.Items.get(itemID);
+let item = await Zotero.Items.getAsync(itemID);
 ```
+
+> ❓ What is the difference between `getAsync` and `get`?
+>
+> The `getAsync` method is an asynchronous method that returns a promise, while the `get` method is a synchronous method that returns the object directly. The asynchronous method ensures that the objects are loaded.
+>
+> For most cases, it is recommended to use the asynchronous method.
 
 The table below shows the class and its corresponding plural object:
 
@@ -436,7 +444,7 @@ The user library is the default library that contains all the items and collecti
 // The user library ID
 let libraryID = Zotero.Libraries.userLibraryID;
 // Get the library by ID
-let library = Zotero.Libraries.get(libraryID);
+let library = await Zotero.Libraries.getAsync(libraryID);
 // Print the library ID
 Zotero.debug(library.id);
 // Print the library type, which is "user" for the user library.
@@ -464,7 +472,7 @@ Other important shared properties and methods include:
 - `save()` and `saveTx()`: saves the changes to the database.
 - `erase()` and `eraseTx()`: deletes the data object from the database.
 
-To create a new data object, you can use the `new` keyword:
+To create a new data object, you can use the `new` keyword. For example, to create a new item:
 
 ```javascript
 let item = new Zotero.Item();
@@ -522,6 +530,228 @@ collections = await Zotero.Collections.getCollectionsContainingItems(itemIDs);
 ```
 
 ### 2.2.4 Search
+
+The **Search** object is used to search for items in a library. It has the following properties and methods:
+
+- `addCondition(field, operator, value, required): number`: adds a search condition.
+- `updateCondition(searchConditionID, condition, operator, value, required): void`: updates a search condition.
+- `removeCondition(searchConditionID): void`: removes a search condition.
+- `getCondition(searchConditionID): ConditionType`: gets a search condition. Returns an array of `ConditionType` (object with `condition`, `operator`, `value`, `required` properties).
+- `getConditions(): { [id: number]: ConditionType }`: gets all search conditions.
+- `search(asTempTable): Promise<number[]> | Promise<string>`: executes the search.
+
+<details>
+<summary>All available operators and conditions</summary>
+
+Be aware that the available operators and conditions are subject to change. Some operators and conditions are only supposed to be used internally.
+
+```typescript
+type Operator =
+  | "is"
+  | "isNot"
+  | "true"
+  | "false"
+  | "isInTheLast"
+  | "isBefore"
+  | "isAfter"
+  | "contains"
+  | "doesNotContain"
+  | "beginsWith"
+  | "isLessThan"
+  | "isGreaterThan"
+  | "any"
+  | "all"
+  | "true"
+  | "false";
+type Conditions =
+  | "numPages"
+  | "numberOfVolumes"
+  | "abstractNote"
+  | "anyField"
+  | "accessDate"
+  | "applicationNumber"
+  | "archive"
+  | "artworkSize"
+  | "assignee"
+  | "fulltextContent"
+  | "fileTypeID"
+  | "author"
+  | "authority"
+  | "bookAuthor"
+  | "callNumber"
+  | "childNote"
+  | "citationKey"
+  | "code"
+  | "codeNumber"
+  | "collection"
+  | "committee"
+  | "conferenceName"
+  | "country"
+  | "creator"
+  | "date"
+  | "dateAdded"
+  | "dateModified"
+  | "DOI"
+  | "edition"
+  | "editor"
+  | "extra"
+  | "filingDate"
+  | "history"
+  | "ISBN"
+  | "ISSN"
+  | "issue"
+  | "itemType"
+  | "journalAbbreviation"
+  | "language"
+  | "libraryCatalog"
+  | "archiveLocation"
+  | "medium"
+  | "meetingName"
+  | "note"
+  | "number"
+  | "pages"
+  | "place"
+  | "priorityNumbers"
+  | "programmingLanguage"
+  | "publicationTitle"
+  | "publisher"
+  | "references"
+  | "reporter"
+  | "rights"
+  | "runningTime"
+  | "scale"
+  | "section"
+  | "series"
+  | "seriesNumber"
+  | "seriesText"
+  | "seriesTitle"
+  | "session"
+  | "shortTitle"
+  | "status"
+  | "system"
+  | "tag"
+  | "title"
+  | "type"
+  | "url"
+  | "versionNumber"
+  | "volume"
+  | "deleted"
+  | "noChildren"
+  | "unfiled"
+  | "retracted"
+  | "publications"
+  | "feed"
+  | "includeParentsAndChildren"
+  | "includeParents"
+  | "includeChildren"
+  | "recursive"
+  | "joinMode"
+  | "quicksearch-titleCreatorYear"
+  | "quicksearch-titleCreatorYearNote"
+  | "quicksearch-fields"
+  | "quicksearch-everything"
+  | "quicksearch"
+  | "blockStart"
+  | "blockEnd"
+  | "collectionID"
+  | "savedSearchID"
+  | "savedSearch"
+  | "itemTypeID"
+  | "tagID"
+  | "lastName"
+  | "field"
+  | "datefield"
+  | "year"
+  | "numberfield"
+  | "libraryID"
+  | "key"
+  | "itemID"
+  | "annotationText"
+  | "annotationComment"
+  | "fulltextWord"
+  | "tempTable";
+```
+
+</details>
+
+If you are focused on data access, the first thing you will want to do will be to retrieve items from your Zotero library. Creating an in-memory search is a good start.
+
+```javascript
+let s = new Zotero.Search();
+s.libraryID = Zotero.Libraries.userLibraryID;
+```
+
+**Search for items containing a specific tag**
+
+Starting with the above code, we then use the following code to retrieve items in My Library with a particular tag:
+
+```javascript
+s.addCondition("tag", "is", "tag name here");
+let itemIDs = await s.search();
+```
+
+**Advanced searches**
+
+```javascript
+let s = new Zotero.Search();
+s.libraryID = Zotero.Libraries.userLibraryID;
+s.addCondition("joinMode", "any"); // joinMode defaults to 'all' as per the advanced search UI
+```
+
+To add the other conditions available in the advanced search UI, use the following:
+
+```javascript
+s.addCondition("recursive", "true"); // equivalent of "Search subfolders" checked
+s.addCondition("noChildren", "true"); // "Only show top level children
+s.addCondition("includeParentsAndChildren", "true");
+("Include parent and child ...");
+```
+
+**Search by collection**
+
+To search for a collection or a saved search you need to know the ID or key:
+
+```javascript
+s.addCondition("collectionID", "is", collectionID); // e.g., 52
+s.addCondition("savedSearchID", "is", savedSearchID);
+
+s.addCondition("collection", "is", collectionKey); // e.g., 'C72FDAP2'
+s.addCondition("savedSearch", "is", savedSearchKey);
+```
+
+**Search by creator**
+
+```javascript
+let name = "smith";
+s.addCondition("creator", "contains", name);
+```
+
+**Search by tag**
+
+To search by tag, you use the tag text:
+
+```javascript
+let tagName = "something";
+s.addCondition("tag", "is", tagName);
+```
+
+**Search by other fields**
+
+The complete list of other fields available to search on is on the [search fields](https://www.zotero.org/support/dev/client_coding/javascript_api/search_fields "dev:client_coding:javascript_api:search_fields") page.
+
+**Executing the search**
+
+Once the search conditions have been set up, then it's time to execute the results:
+
+```javascript
+let itemIDs = await s.search();
+```
+
+This returns the item ids in the search as an array. The next thing to do is to get the Zotero items for the array of IDs:
+
+```javascript
+let items = await Zotero.Items.getAsync(itemIDs);
+```
 
 ### 2.2.5 Item
 
