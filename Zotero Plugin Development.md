@@ -911,13 +911,40 @@ To unregister the observer:
 Zotero.Notifier.unregisterObserver(observerID);
 ```
 
-## 2.5 Browser Window, HTML Window, and Sandbox
+## 2.5 Privileged v.s Unprivileged: Browser Window, HTML Window, and Sandbox
 
 In Zotero, there are different types of scopes for running code. Different scopes have different privileges and access to different APIs.
 
 > ❗️ Be aware of the scope when running code. Some APIs are only available in specific scopes.
 >
 > Zotero is NOT a NodeJS environment. Don't try to use NodeJS APIs in the plugin!
+
+**Privileged v.s Unprivileged**
+
+Similar to Firefox, Zotero inherits the same security model. Different levels of privileges have different security principals and different access.
+
+> 🔗 For more details about security model, see [Script Security](https://firefox-source-docs.mozilla.org/dom/scriptSecurity/index.html#script-security)
+
+For security reasons, when you try to access an object in a less privileged scope from a privileged scope , e.g. access content in an HTML window from the plugin's sandbox scope, sometimes you don't get the expected value. This is called the Xray vision.
+
+For example, if you try to access the attribute attached to the `window` object in HTML window, you may get an undefined value.
+
+```javascript
+// In the HTML window
+window.myAttribute = { value: 42 };
+```
+
+```javascript
+// In the plugin's sandbox
+let myAttribute = window.myAttribute;
+Zotero.debug(myAttribute); // undefined
+
+// To access the attribute, you need to waive the Xray vision
+myAttribute = window.wrappedJSObject.myAttribute;
+Zotero.debug(myAttribute); // { value: 42 }
+```
+
+> 🔗 For more details about the Xray vision, see [Xray vision](https://firefox-source-docs.mozilla.org/dom/scriptSecurity/xray_vision.html).
 
 **Browser Window**
 
@@ -947,6 +974,7 @@ The plugin's sandbox scope is similar to the worker scope, but with additional p
 >
 > - Both scopes have access to privileged APIs.
 > - The main window scope has window-specific APIs, such as `window` and `document`.
+> - Global variables are different. For example, `Zotero` is available in both scopes, but `ZoteroPane` is only available in the main window scope, as it is related to the DOM of the main window.
 > - The main window scope is recycled when the window is closed, while the plugin's sandbox scope is persistent until the plugin is unloaded.
 
 ## 2.6 Reader
