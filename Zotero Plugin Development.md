@@ -469,8 +469,9 @@ Other important shared properties and methods include:
 - `libraryID`: indicates which library the data object belongs to.
 - `objectType`: indicates the type of the data object. Can be `collection`, `item`, `search`, etc.
 - `version`: indicates the version of the data object. The version is incremented every time the data object is updated.
+- `deleted`: indicates whether the data object is trashed.
 - `save()` and `saveTx()`: saves the changes to the database.
-- `erase()` and `eraseTx()`: deletes the data object from the database.
+- `erase()` and `eraseTx()`: completely erase the data object from the database.
 
 To create a new data object, you can use the `new` keyword. For example, to create a new item:
 
@@ -674,6 +675,145 @@ type Conditions =
 
 </details>
 
+### 2.2.5 Item
+
+The `Item` is the most common data object in Zotero. Some important types of items include:
+
+- Regular Item: A bibliographic item, such as a book, article, or webpage.
+- Attachment Item: An attachment, such as a PDF file, a snapshot, or a image in the note.
+- Note Item: A note item.
+- Annotation Item: An annotation item. It always belongs to an attachment item.
+
+> 📖 Terminology: Child Item v.s Standalone Item
+>
+> A child item is an item that has a parent item, such as an attachment item has a parent regular item. A standalone item is an item that does not have a parent item.
+
+The `Item` object has the following important properties and methods:
+
+- `itemType`: the type of the item. For example, `book`, `journalArticle`, `attachment`, `note`, etc.
+- `parentItem`: the parent item of the item. If the item is a standalone item, the parent item is `null`.
+- `topLevelItem`: the top-level item of the item. If the item is a standalone item, the top-level item is the item itself.
+- `isTopLevelItem()`: indicates whether the item is a top-level item.
+- `isRegularItem()`: indicates whether the item is a regular item.
+- `isAttachment()`: indicates whether the item is an attachment item.
+- `isAnnotation()`: indicates whether the item is an annotation item.
+- `isNote()`: indicates whether the item is a note item.
+- `numChildren()`: gets the number of child items of the item.
+- `getTags()`: gets the tags of the item.
+- `setTags()`: sets the tags of the item.
+- `replaceTag()`: replaces the tags of the item.
+- `addTag()`: adds a tag to the item.
+- `removeTag()`: removes a tag from the item.
+- `addToCollection()`: adds the item to a collection.
+- `getCollections()`: gets the collections containing the item.
+- `setCollections()`: sets the collections containing the item.
+- `inCollection()`: indicates whether the item is in a collection.
+- `clone()`: returns an unsaved copy of the item without itemID and key.
+- `moveToLibrary()`: moves the item to another library.
+
+For Regular Items, the following additional properties and methods would be useful:
+
+- `getField()`: gets the value of a field of the item.
+- `setField()`: sets the value of a field of the item.
+- `getAttachments()`: gets the attachments of the item.
+- `getBestAttachment()`: gets the best attachment of the item. Looks for attachment in the following order: oldest PDF attachment matching parent URL, oldest PDF attachment not matching parent URL, oldest non-PDF attachment matching parent URL, and old non-PDF attachment not matching parent URL.
+- `getNotes()`: gets the notes of the item.
+- `numAttachments()`: gets the number of child attachments of the item.
+- `numNotes()`: gets the number of child notes of the item.
+- `addRelatedItem()`: adds a related item to the item.
+- `removeRelatedItem()`: removes a related item from the item.
+
+For Attachment Items, the following additional properties and methods would be useful:
+
+- `attachmentFilename`: the filename of the attachment.
+- `attachmentPath`: the raw attachment path string as stored in DB (e.g., "storage:foo.pdf", "attachments:foo/bar.pdf", "/Users/foo/Desktop/bar.pdf"). Can be set as absolute path or prefixed string ("storage:foo.pdf").
+- `attachmentContentType`: the content type of the attachment. For example, `application/pdf`, `text/html`, `application/epub+zip`, etc.
+- `attachmentText`: the text content of the attachment. Currently works on HTML, PDF and plaintext attachments.
+- `isPDFAttachment()`: indicates whether the item is a PDF attachment.
+- `isSnapshotAttachment()`: indicates whether the item is a snapshot (Webpage) attachment.
+- `isEPUBAttachment()`: indicates whether the item is an EPUB attachment.
+- `getFilePath()`/`getFilePathAsync()`: gets the file path of the attachment.
+- `fileExists()`: indicates whether the file of the attachment exists.
+- `renameAttachmentFile()`: renames the file of the attachment.
+- `getAnnotations()`: gets the child annotations of the attachment.
+
+For Note Items, the following additional properties and methods would be useful:
+
+- `getNote()`: gets the note content.
+- `setNote()`: sets the note content.
+- `getNoteTitle()`: gets the note title.
+
+For Annotation Items, the following additional properties and methods would be useful:
+
+- `annotationType`: the type of the annotation. For example, `highlight`, `text`, `image`, `ink`, `note` (sticky note, not the note item), etc.
+- `annotationText`: the text content of the annotation.
+- `annotationComment`: the comment of the annotation.
+
+To trash an item, you can use `Zotero.Items.trash()`/`Zotero.Items.trashTx()`.
+
+```javascript
+let item = await Zotero.Items.getAsync(itemID);
+await Zotero.Items.trashTx(item);
+```
+
+## 2.3 Persisted Settings
+
+## 2.4 Notifier Events
+
+## 2.5 Privileged v.s Unprivileged
+
+## 2.6 Reader
+
+### 2.6.1 `Reader` vs `ReaderInstance`
+
+![uml](./uml_reader.png)
+
+### 2.6.2 Views
+
+#### 2.6.2.1 Snapshot View
+
+#### 2.6.2.2 ePub View
+
+#### 2.6.2.3 PDF View
+
+# 3 UX Guidelines
+
+## 3.1 Zotero Pane
+
+### 3.1.1 Collections Pane
+
+### 3.1.2 Items Pane
+
+### 3.1.3 Item Pane and Context Pane
+
+## 3.2 Tabs
+
+## 3.3 Reader
+
+## 3.3 Note Editor
+
+## 3.4 Dark Mode
+
+# 4 Best Practice
+
+## 4.1 Item Tree API
+
+## 4.2 Preference Page API
+
+## 4.3 Item Pane Section API
+
+## 4.4 Reader UI API
+
+## 4.5 Window Menu
+
+## 4.6 HTTP Request
+
+## 4.7 Worker
+
+## 4.8 File I/O
+
+## 4.9 Search
+
 If you are focused on data access, the first thing you will want to do will be to retrieve items from your Zotero library. Creating an in-memory search is a good start.
 
 ```javascript
@@ -751,75 +891,4 @@ This returns the item ids in the search as an array. The next thing to do is to 
 
 ```javascript
 let items = await Zotero.Items.getAsync(itemIDs);
-```
-
-### 2.2.5 Item
-
-- Regular Item
-- Attachment Item
-- Note Item
-- Annotation Item
-
-## 2.3 Persisted Settings
-
-## 2.4 Notifier Events
-
-## 2.5 Privileged v.s Unprivileged
-
-## 2.6 Reader
-
-### 2.6.1 `Reader` vs `ReaderInstance`
-
-![uml](./uml_reader.png)
-
-### 2.6.2 Views
-
-#### 2.6.2.1 Snapshot View
-
-#### 2.6.2.2 ePub View
-
-#### 2.6.2.3 PDF View
-
-# 3 UX Guidelines
-
-## 3.1 Zotero Pane
-
-### 3.1.1 Collections Pane
-
-### 3.1.2 Items Pane
-
-### 3.1.3 Item Pane and Context Pane
-
-## 3.2 Tabs
-
-## 3.3 Reader
-
-## 3.3 Note Editor
-
-## 3.4 Dark Mode
-
-# 4 Best Practice
-
-## 4.1 Item Tree API
-
-## 4.2 Preference Page API
-
-## 4.3 Item Pane Section API
-
-## 4.4 Reader UI API
-
-## 4.5 Window Menu
-
-## 4.6 HTTP Request
-
-## 4.7 Worker
-
-## 4.8 File I/O
-
-```
-
-```
-
-```
-
 ```
