@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD033 MD036 MD040 -->
+
 # 1 Getting Started
 
 ## 1.1 What is Zotero Plugin
