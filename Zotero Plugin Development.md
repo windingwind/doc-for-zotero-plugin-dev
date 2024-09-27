@@ -328,6 +328,21 @@ If adding to an existing window, be sure to remove the `<link>` in your plugin
 doc.querySelector('[href="make-it-red.ftl"]').remove();
 ```
 
+#### 1.4.1.4 Preferences
+
+Zotero uses the preferences system for storing user preferences. Plugins can provide default values for its preferences in the `prefs.js` file. It should be in the root directory of the plugin.
+
+Here is an example of a `prefs.js` file:
+
+```javascript
+pref("extensions.make-it-red.intensity", 100);
+```
+
+These preferences will be read when plugins are installed or enabled and then on every startup.
+
+> 🔗 For more details about the preferences in Zotero, see [Preferences](https://www.zotero.org/support/preferences).
+> In [Persisted Settings](#23-persisted-settings-preferences) section, we'll cover more details about the preferences system.
+
 ### 1.4.2 Plugin Update
 
 The update manifests are set up to demonstrate upgrading across all versions, but normally a plugin would point to a single update manifest that was updated as new versions were available.
@@ -760,7 +775,61 @@ let item = await Zotero.Items.getAsync(itemID);
 await Zotero.Items.trashTx(item);
 ```
 
-## 2.3 Persisted Settings
+## 2.3 Persisted Settings: Preferences
+
+Zotero provides a set of APIs for managing persisted settings, which are stored in the Zotero data directory's `prefs.js` file.
+
+These settings will be persisted across Zotero sessions and are available to all parts of the plugin. However, the settings are not synced across devices.
+
+A preference is a key-value pair. The key is a string, usually in the format of `extensions.myplugin.mykey`, where `myplugin` is the plugin unique identifier and `mykey` is the key of the preference. The value can be a string, number, or boolean.
+
+As we mentioned in the [Plugin Structure/Preferences](#1414-preferences) section, plugins can provide default values for its preferences in its own `prefs.js` file.
+
+The `Zotero.Prefs` object is used to manage the persisted settings. It has the following important methods:
+
+- `get(key, global)`: gets the value of a preference.
+- `set(key, value, global)`: sets the value of a preference.
+- `clear(key, global)`: clears the value of a preference.
+- `registerObserver(key, handler, global)`: registers an observer for a preference. The handler will be called when the preference is changed.
+- `unregisterObserver(observerID)`: unregisters an observer.
+
+For example:
+
+```javascript
+// Get the value of a preference
+let value = Zotero.Prefs.get("extensions.myplugin.mykey", true);
+// Set the value of a preference
+Zotero.Prefs.set("extensions.myplugin.mykey", "myvalue", true);
+// Clear the value of a preference
+Zotero.Prefs.clear("extensions.myplugin.mykey", true);
+// For Zotero's built-in preferences, the key should be in the format of "extensions.zotero.zoterokey".
+// The call can be simplified as:
+value = Zotero.Prefs.get("zoterokey");
+// Equivalent to:
+value = Zotero.Prefs.get("extensions.zotero.zoterokey", true);
+```
+
+To observe the changes of a preference:
+
+```javascript
+let key = "extensions.myplugin.mykey";
+// Register the observer
+let observerID = Zotero.Prefs.registerObserver(
+  "extensions.myplugin.mykey",
+  (value) => {
+    Zotero.debug(`Preference ${key} changed to ${value}`);
+  },
+  true
+);
+```
+
+To unregister the observer:
+
+```javascript
+Zotero.Prefs.unregisterObserver(observerID);
+```
+
+> If you want to store complex data, you can serialize (`JSON.stringify`) and deserialize (`JSON.parse`) the data.
 
 ## 2.4 Notifier Events
 
