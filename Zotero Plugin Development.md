@@ -816,7 +816,231 @@ await Zotero.Items.trashTx(item);
 
 ## 4.8 File I/O
 
-## 4.9 Search
+**Getting the contents of a file**
+
+```javascript
+let path = "/Users/user/Desktop/data.json";
+let data = await Zotero.File.getContentsAsync(path);
+Zotero.debug(data);
+```
+
+**Saving data to a file**
+
+```javascript
+let path = "/Users/user/Desktop/file.txt";
+let data = "This is some text.";
+await Zotero.File.putContentsAsync(path, data);
+```
+
+**Renaming file**
+
+```javascript
+let oldPath = "/Users/user/Desktop/old.txt";
+let newPath = "/Users/user/Desktop/new.txt";
+await Zotero.File.rename(oldPath, newPath);
+```
+
+**Deleting file**
+
+```javascript
+let path = "/Users/user/Desktop/file.txt";
+await Zotero.File.removeIfExists(path);
+```
+
+**Iterating over files in a directory**
+
+```javascript
+let dirPath = "/Users/user/Desktop";
+await Zotero.File.iterateDirectory(dirPath, (entry) => {
+  Zotero.debug(entry.name);
+});
+```
+
+**File picker**
+
+First, you need to import the `FilePicker` class:
+
+```javascript
+let { FilePicker } = ChromeUtils.import(
+  "chrome://zotero/content/modules/filePicker.jsm"
+);
+```
+
+Then, you can use the `FilePicker` class to pick a file or directory.
+
+Pick a directory:
+
+```javascript
+let fp = new FilePicker();
+let defaultPath = "/Users/user/Desktop";
+if (defaultPath) {
+  fp.displayDirectory = defaultPath;
+}
+fp.init(Zotero.getMainWindow(), "Select Directory", fp.modeGetFolder);
+fp.appendFilters(fp.filterAll);
+let rv = await fp.show();
+
+if (rv == fp.returnOK) {
+  let path = PathUtils.normalize(fp.file);
+  if (defaultPath == path) {
+    Zotero.debug("Same directory selected");
+  } else {
+    Zotero.debug("Selected directory: " + path);
+  }
+}
+```
+
+Pick a file (open):
+
+```javascript
+let fp = new FilePicker();
+fp.init(Zotero.getMainWindow(), "Select File", fp.modeOpen);
+// Allow `*.*` files
+fp.appendFilters(fp.filterAll);
+// Allow only `*.txt` files
+fp.appendFilter("TXT files", "*.txt");
+let rv = await fp.show();
+
+if (rv == fp.returnOK || rv == fp.returnReplace) {
+  let inputFile = Zotero.File.pathToFile(fp.file);
+  let content = await Zotero.File.getContentsAsync(inputFile);
+  Zotero.debug(content);
+}
+```
+
+Pick a file (save):
+
+```javascript
+let fp = new FilePicker();
+fp.init(Zotero.getMainWindow(), "Save File", fp.modeSave);
+// Allow `*.*` files
+fp.appendFilters(fp.filterAll);
+// Allow only `*.txt` files
+fp.appendFilter("TXT files", "*.txt");
+let rv = await fp.show();
+
+if (rv == fp.returnOK || rv == fp.returnReplace) {
+  let outputFile = Zotero.File.pathToFile(fp.file);
+  await Zotero.File.putContentsAsync(outputFile, "Hello, World!");
+}
+```
+
+## 4.9 Item Operations
+
+**Create item**
+
+A typical operation might include a call to `Zotero.Items.get()` to retrieve a `Zotero.Item` instance, calls to `Zotero.Item` methods on the retrieved object to modify data, and finally a `save()` (within a transaction) or `saveTx()` (outside a transaction) to save the modified data to the database.
+
+```javascript
+let item = new Zotero.Item("book");
+item.setField("title", "Much Ado About Nothing");
+item.setCreators([
+  {
+    firstName: "William",
+    lastName: "Shakespeare",
+    creatorType: "author",
+  },
+]);
+let itemID = await item.saveTx();
+return itemID;
+
+// Fetch saved items with Items.get(itemID)
+let item = Zotero.Items.get(itemID);
+Zotero.debug(item.getField("title")); // "Much Ado About Nothing"
+Zotero.debug(item.getCreator(0)); // {'firstName'=>'William', 'lastName'=>'Shakespeare',
+//   'creatorTypeID'=>1, 'fieldMode'=>0}
+// Alternative format
+Zotero.debug(item.getCreatorJSON(0)); // {'firstName'=>'William', 'lastName'=>'Shakespeare',
+//   'creatorType'=>'author'}
+item.setField("place", "England");
+item.setField("date", 1599);
+await item.saveTx(); // update database with new data
+```
+
+**Get item information**
+
+Different item (specifically, regular item) types have different fields. To get the value of a field, use the `getField()` method. For example, to get an item's abstract, we get the `abstractNote` field from the Zotero item:
+
+```javascript
+let abstract = item.getField("abstractNote");
+```
+
+> 🔗 For more details about item fields, see [item_types_and_fields](https://www.zotero.org/support/kb/item_types_and_fields).
+
+**Get child notes for an item**
+
+To get the child notes for an item, we use the following code:
+
+```javascript
+let noteIDs = item.getNotes();
+```
+
+This returns an array of ids of note items. To get each note in turn we just iterate through the array:
+
+```javascript
+for (let id of noteIDs) {
+  let note = Zotero.Items.get(id);
+  let noteHTML = note.getNote();
+}
+```
+
+**Get an item's related items**
+
+let relatedItems = item.relatedItems;
+
+**Set two items as related to each other**
+
+Given two items `itemA` and `itemB`. We can set them as related items to each other by using the `addRelatedItem` function:
+
+```javascript
+itemA.addRelatedItem(itemB);
+await itemA.saveTx();
+itemB.addRelatedItem(itemA);
+await itemB.saveTx();
+```
+
+**Get attachments' full-text**
+
+The code below gets the full text of HTML and PDF items in storage and put the data in an array:
+
+```javascript
+let item = ZoteroPane.getSelectedItems()[0];
+let fulltext = [];
+if (item.isRegularItem()) {
+  // not an attachment already
+  let attachmentIDs = item.getAttachments();
+  for (let id of attachmentIDs) {
+    let attachment = Zotero.Items.get(id);
+    if (attachment.isPDFAttachment() || attachment.isSnapshotAttachment()) {
+      fulltext.push(await attachment.attachmentText);
+    }
+  }
+}
+```
+
+## 4.10 Collection Operations
+
+**Get the items in the selected collection**
+
+```javascript
+let collection = ZoteroPane.getSelectedCollection();
+let items = collection.getChildItems();
+// or you can obtain an array of itemIDs instead:
+let itemIDs = collection.getChildItems(true);
+```
+
+**Create a subcollection of the selected collection**
+
+```javascript
+let currentCollection = ZoteroPane.getSelectedCollection();
+let collection = new Zotero.Collection();
+collection.name = name;
+collection.parentID = currentCollection.id;
+let collectionID = await collection.saveTx();
+return collectionID;
+```
+
+## 4.11 Search Operations
 
 If you are focused on data access, the first thing you will want to do will be to retrieve items from your Zotero library. Creating an in-memory search is a good start.
 
@@ -895,4 +1119,32 @@ This returns the item ids in the search as an array. The next thing to do is to 
 
 ```javascript
 let items = await Zotero.Items.getAsync(itemIDs);
+```
+
+## 4.12 Interacting with ZoteroPane
+
+The code below shows how to interact with the Zotero pane to get the currently selected items.
+
+```javascript
+let ZoteroPane = Zotero.getActiveZoteroPane();
+```
+
+Then grab the currently selected items from the Zotero pane:
+
+```javascript
+// Get first selected item
+let selectedItems = ZoteroPane.getSelectedItems();
+let item = selectedItems[0];
+// Proceed if an item is selected and it isn't a note
+if (item && !item.isNote()) {
+  if (item.isAttachment()) {
+    // find out about attachment
+  }
+  if (item.isRegularItem()) {
+    // We could grab attachments:
+    // let attachmentIDs = item.getAttachments();
+    // let attachment = Zotero.Items.get(attachmentIDs[0]);
+  }
+  alert(item.id);
+}
 ```
