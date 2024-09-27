@@ -831,7 +831,85 @@ Zotero.Prefs.unregisterObserver(observerID);
 
 > If you want to store complex data, you can serialize (`JSON.stringify`) and deserialize (`JSON.parse`) the data.
 
-## 2.4 Notifier Events
+## 2.4 Notification System
+
+Zotero has a built-in notification system that allows plugins to be notified when a change is made in the data layer — for example, when an item is added to the library. Within Zotero itself, this is used mostly to update the UI when items change.
+
+The notification system is based on the observer pattern. Plugins can register observers for specific events and receive notifications when the events occur.
+
+The `Zotero.Notifier` object is used to manage the notification system. It has the following important methods:
+
+- `registerObserver(ref, types, id, priority): string`: registers an observer for an event. The `ref` is an object (`{ notify: (event, type, ids, extraData) => void }`) that implements the `notify` method. The `types` is an array of event types. The `id` is a unique identifier for debug output. The `priority` is the priority of the observer.
+- `unregisterObserver(observerID)`: unregisters an observer.
+
+<details>
+<summary>All available event and types</summary>
+
+The following are the available events and types. Not all types are available for all events.
+
+```typescript
+type Event =
+  | "add"
+  | "modify"
+  | "delete"
+  | "move"
+  | "remove"
+  | "refresh"
+  | "redraw"
+  | "trash"
+  | "unreadCountUpdated"
+  | "index"
+  | "open"
+  | "close"
+  | "select";
+type Type =
+  | "collection"
+  | "search"
+  | "share"
+  | "share-items"
+  | "item"
+  | "file"
+  | "collection-item"
+  | "item-tag"
+  | "tag"
+  | "setting"
+  | "group"
+  | "trash"
+  | "bucket"
+  | "relation"
+  | "feed"
+  | "feedItem"
+  | "sync"
+  | "api-key"
+  | "tab"
+  | "itemtree"
+  | "itempane";
+```
+
+</details>
+
+For example, to observe the `add`, `modify`, and `delete` events on the `item` type:
+
+```javascript
+let observerID = Zotero.Notifier.registerObserver(
+  {
+    notify: (event, type, ids, extraData) => {
+      if (type === "item") {
+        Zotero.debug(`Event ${event} of type ${type} is triggered`);
+      }
+    },
+  },
+  ["add", "modify", "delete"]
+);
+```
+
+You can create a new item and check the debug output to see if the output is printed.
+
+To unregister the observer:
+
+```javascript
+Zotero.Notifier.unregisterObserver(observerID);
+```
 
 ## 2.5 Privileged v.s Unprivileged
 
