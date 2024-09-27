@@ -911,7 +911,43 @@ To unregister the observer:
 Zotero.Notifier.unregisterObserver(observerID);
 ```
 
-## 2.5 Privileged v.s Unprivileged
+## 2.5 Browser Window, HTML Window, and Sandbox
+
+In Zotero, there are different types of scopes for running code. Different scopes have different privileges and access to different APIs.
+
+> ❗️ Be aware of the scope when running code. Some APIs are only available in specific scopes.
+>
+> Zotero is NOT a NodeJS environment. Don't try to use NodeJS APIs in the plugin!
+
+**Browser Window**
+
+XHTML window that runs in privileged mode. It has full access to Zotero APIs and other browser APIs. It is used for the most of the Zotero windows, such as the main window and the preferences window.
+
+The browser window scope is similar to a regular HTML scope, but with additional privileges and some differences in the DOM structure and global variables. Some important differences include:
+
+- Some HTML elements are possibly not available, e.g. `document.body` does not exist in the main window. This is the major cause that some third-party libraries designed for the web cannot be used in the browser window.
+- Access to privileged APIs, e.g. `ChromeUtils`, `Services`, `Zotero`, etc.
+
+**HTML Window**
+
+HTML window that runs in unprivileged mode. It has limited/no access to Zotero APIs and no access to browser APIs. It is used for some iframe windows, such as the note editor and the reader.
+
+If the code is in an HTML iframe, is is not be able to access privileged APIs directly. It should communicate with the parent window using `window.postMessage()`.
+
+**Sandbox**
+
+A secure environment that can have different privileges. It can be used to run untrusted code, such as the code from the web. The plugin runs in a sandbox environment in privileged mode.
+
+The plugin's sandbox scope is similar to the worker scope, but with additional privileges and access to Zotero APIs. Some important differences include:
+
+- Access to privileged APIs.
+- Global variables, such as `Zotero`, `ChromeUtils`, `Services`, `ChromeWorker`, `Localization`, `IOUtils`, `PathUtils`, etc.
+
+> ❓ What is the difference between the main window scope and the plugin's sandbox scope?
+>
+> - Both scopes have access to privileged APIs.
+> - The main window scope has window-specific APIs, such as `window` and `document`.
+> - The main window scope is recycled when the window is closed, while the plugin's sandbox scope is persistent until the plugin is unloaded.
 
 ## 2.6 Reader
 
