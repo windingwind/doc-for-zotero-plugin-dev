@@ -183,7 +183,7 @@ Here is an example of a `manifest.json` file:
 
 Explanation of the fields in the `manifest.json` file are as follows. The fields marked with `*` are required.
 
-- `manifest_version`\*: The version of the manifest file format. Currently, the only valid value is 2.
+- `manifest_version`\*: The version of the manifest file format. Currently, the only valid value is `2`.
 - `name`\*: The name of the plugin.
 - `version`\*: The version of the plugin. The version number should follow [this](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version) format.
 - `description`: A brief description of the plugin. It will be shown in the _Plugin Manager_.
@@ -287,6 +287,8 @@ locale/zh-CN/make-it-red.ftl
 ```
 
 Any `.ftl` files you place in the locale subfolders will be automatically registered in Zotero's localization system.
+
+All supported locales are list in [locales](https://github.com/zotero/zotero/tree/main/chrome/locale).
 
 **Using a Fluent File in a Document**
 
