@@ -800,6 +800,10 @@ await Zotero.Items.trashTx(item);
 
 # 4 Best Practice
 
+In this section, we'll introduce some best practices for achieving common tasks in Zotero plugin development.
+
+All the code examples are supposed to run in the plugin's sandbox environment.
+
 ## 4.1 Item Tree API
 
 ## 4.2 Preference Page API
@@ -815,6 +819,8 @@ await Zotero.Items.trashTx(item);
 ## 4.7 Worker
 
 ## 4.8 File I/O
+
+Zotero provides a set of APIs for file I/O operations in `Zotero.File`. You can also use [IOUtils](https://firefox-source-docs.mozilla.org/dom/ioutils_migration.html) and [PathUtils](https://searchfox.org/mozilla-esr115/source/dom/chrome-webidl/PathUtils.webidl) for the operations that are not provided by `Zotero.File`.
 
 **Getting the contents of a file**
 
