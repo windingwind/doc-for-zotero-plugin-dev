@@ -1365,3 +1365,9 @@ if (item && !item.isNote()) {
   alert(item.id);
 }
 ```
+
+## 4.13 Unload the Plugin
+
+### 4.13.1 DOM Elements and Listeners
+
+### 4.13.2 Notifier and Other Observers
