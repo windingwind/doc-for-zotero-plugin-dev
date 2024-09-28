@@ -434,7 +434,7 @@ let item = await Zotero.Items.getAsync(itemID);
 >
 > For most cases, it is recommended to use the asynchronous method.
 
-The table below shows the class and its corresponding plural object:
+The table below lists the **class** and its corresponding plural **object**:
 
 | Class               | Manager Object       |
 | ------------------- | -------------------- |
@@ -449,13 +449,13 @@ The table below shows the class and its corresponding plural object:
 
 ### 2.2.1 Library
 
-All items and collections in Zotero belongs to a **Library**. There are three types of libraries in Zotero:
+All items and collections in Zotero belong to a **Library**. There are three types of libraries in Zotero:
 
 - User Library
 - Group
 - Feed
 
-Each library has a unique `id` and, which can be used to get the library instance.
+Each library has a unique `id`, which can be used to get the library instance.
 
 The user library is the default library that contains all the items and collections created by the user. The user library ID can be retrieved using `Zotero.Libraries.userLibraryID`.
 
@@ -475,13 +475,13 @@ You can get all the libraries using `Zotero.Libraries.getAll()`.
 
 ### 2.2.2 Data Object
 
-The `Zotero.DataObject` class is the base class for all data objects, including `Zotero.Collection`, `Zotero.Item`, `Zotero.Search`.
+The `Zotero.DataObject` class is the base class for all data objects, including `Zotero.Collection`, `Zotero.Item`, and `Zotero.Search`.
 
-Each data object has a unique `key` (string) and a `id` (number).
+Each data object has a unique `key` (string) and an `id` (number).
 
 > ❗️ Do not rely on the `id` for identifying the data object!
 >
-> The `key` is unique across all devices, while the `id` is unique within the local database. In extreme cases, the `id` can be changed, but the `key` always remain the same.
+> The `key` is unique across all devices *(within one library)*, while the `id` is unique within the local database. In extreme cases, the `id` can be changed, but the `key` always remains the same.
 
 Other important shared properties and methods include:
 
@@ -502,7 +502,7 @@ Each time you modify a data object, you should call the `save()` or `saveTx()` m
 
 > ❓ What is the difference between `save()` and `saveTx()`?
 >
-> The `saveTx()` creates a transaction for saving the changes, while the `save()` should be called inside a transaction. For multiple changes in one transaction, they will be saved together when the transaction is committed.
+> The `saveTx()` creates a transaction for saving the changes, while the `save()` should be called inside a [transaction](https://en.wikipedia.org/wiki/Database_transaction). For multiple changes in one transaction, they will be saved together when the transaction is committed.
 >
 > The `save()` is useful when you have multiple changes to save together.
 >
@@ -518,10 +518,10 @@ We'll discuss the different types of data objects in the following sections.
 
 A **Collection** contains a group of items and other collections.
 
-Besides the shared properties and methods of a data object, a collection object has the following important properties:
+Besides the inherited properties and methods from the `DataObject`, a collection object has the following notable properties:
 
 - `name`: the name of the collection.
-- `parent`: the parent collection of the collection. If the collection is a top-level collection, the parent is `null`.
+- `parent`: the parent collection of the collection. A top-level collection has a `null` parent.
 - `parentKey`: the key of the parent collection.
 - `parentID`: the ID of the parent collection.
 - `getChildCollections()`: gets the child collections of the collection.
@@ -551,7 +551,7 @@ collections = await Zotero.Collections.getCollectionsContainingItems(itemIDs);
 
 ### 2.2.4 Search
 
-The **Search** object is used to search for items in a library. It has the following properties and methods:
+The **Search** class is used to search for items in a library. It has the following properties and methods:
 
 - `addCondition(field, operator, value, required): number`: adds a search condition.
 - `updateCondition(searchConditionID, condition, operator, value, required): void`: updates a search condition.
@@ -699,18 +699,18 @@ type Conditions =
 The `Item` is the most common data object in Zotero. Some important types of items include:
 
 - Regular Item: A bibliographic item, such as a book, article, or webpage.
-- Attachment Item: An attachment, such as a PDF file, a snapshot, or a image in the note.
+- Attachment Item: An attachment, such as a PDF file, a snapshot, or an image in the note.
 - Note Item: A note item.
 - Annotation Item: An annotation item. It always belongs to an attachment item.
 
-> 📖 Terminology: Child Item v.s Standalone Item
+> 📖 Terminology: Child Item v.s. Standalone Item
 >
-> A child item is an item that has a parent item, such as an attachment item has a parent regular item. A standalone item is an item that does not have a parent item.
+> A child item is an item that has a parent item, such as an attachment item with a parent regular item. A standalone item is an item that does not have a parent item. Attachment items may be either child items or standalone items.
 
-The `Item` object has the following important properties and methods:
+The `Item` class has the following important properties and methods:
 
 - `itemType`: the type of the item. For example, `book`, `journalArticle`, `attachment`, `note`, etc.
-- `parentItem`: the parent item of the item. If the item is a standalone item, the parent item is `null`.
+- `parentItem`: the parent item of the item. A standalone item has a `null` parent.
 - `topLevelItem`: the top-level item of the item. If the item is a standalone item, the top-level item is the item itself.
 - `isTopLevelItem()`: indicates whether the item is a top-level item.
 - `isRegularItem()`: indicates whether the item is a regular item.
@@ -747,7 +747,7 @@ For Attachment Items, the following additional properties and methods would be u
 - `attachmentFilename`: the filename of the attachment.
 - `attachmentPath`: the raw attachment path string as stored in DB (e.g., "storage:foo.pdf", "attachments:foo/bar.pdf", "/Users/foo/Desktop/bar.pdf"). Can be set as absolute path or prefixed string ("storage:foo.pdf").
 - `attachmentContentType`: the content type of the attachment. For example, `application/pdf`, `text/html`, `application/epub+zip`, etc.
-- `attachmentText`: the text content of the attachment. Currently works on HTML, PDF and plaintext attachments.
+- `attachmentText`: the text content of the attachment. Currently works on HTML, PDF, and plaintext attachments.
 - `isPDFAttachment()`: indicates whether the item is a PDF attachment.
 - `isSnapshotAttachment()`: indicates whether the item is a snapshot (Webpage) attachment.
 - `isEPUBAttachment()`: indicates whether the item is an EPUB attachment.
