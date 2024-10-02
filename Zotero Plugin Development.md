@@ -1027,6 +1027,49 @@ All the code examples are supposed to run in the plugin's sandbox environment.
 
 ## 4.6 HTTP Request
 
+Zotero provides a set of APIs for making HTTP requests. The `Zotero.HTTP` object is used to make HTTP requests. It has the following important methods:
+
+- `request(method, url, options)`: makes an HTTP request.
+
+### 4.6.1 Making a GET Request
+
+```javascript
+let url = "https://jsonplaceholder.typicode.com/posts/1";
+let req = await Zotero.HTTP.request("GET", url);
+Zotero.debug(req.status); // 200
+Zotero.debug(req.statusText); // OK
+Zotero.debug(req.response); // string
+```
+
+If you want to get the JSON response, pass the `responseType` option as `json`.
+
+```javascript
+let url = "https://jsonplaceholder.typicode.com/posts/1";
+let req = await Zotero.HTTP.request("GET", url, { responseType: "json" });
+Zotero.debug(req.response); // object
+```
+
+### 4.6.2 Making a POST Request
+
+```javascript
+let url = "https://jsonplaceholder.typicode.com/posts";
+let data = {
+  title: "foo",
+  body: "bar",
+  userId: 1,
+};
+let req = await Zotero.HTTP.request("POST", url, {
+  data,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  responseType: "json",
+});
+Zotero.debug(req.status); // 201
+Zotero.debug(req.statusText); // Created
+Zotero.debug(req.response); // object
+```
+
 ## 4.7 Heavy Task with Web Worker
 
 For heavy tasks that may block the main thread, you can use a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to run the task in the background in a separate thread.
