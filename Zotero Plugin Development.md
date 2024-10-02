@@ -1023,11 +1023,9 @@ All the code examples are supposed to run in the plugin's sandbox environment.
 
 ## 4.3 Item Pane Section API
 
-## 4.4 Reader UI API
+## 4.4 Menu
 
-## 4.5 Menu
-
-### 4.5.1 Menu Bar
+### 4.4.1 Menu Bar
 
 Zotero's main window has a menu bar that contains various menus, such as `File` and `Edit`. You can add your own menu items to the menu bar. Besides the main menu bar, you can also add menu items to the context menu.
 
@@ -1080,7 +1078,7 @@ The full list of the query selectors for the menu bar is as follows:
 - `#menu_ToolsPopup`: for the `Tools` menu.
 - `#menu_HelpPopup`: for the `Help` menu.
 
-### 4.5.2 Library Context Menu
+### 4.4.2 Library Context Menu
 
 The library context menu is the context menu that appears when you right-click on an item/collection in the library pane.
 
@@ -1091,7 +1089,7 @@ The full list of the query selectors for the library context menu is as follows:
 - `#zotero-collectionmenu`: for the collection context menu.
 - `#zotero-itemmenu`: for the item context menu.
 
-### 4.5.3 Reader Context Menu
+### 4.4.3 Reader Context Menu
 
 The reader context menu is the context menu that appears when you right-click on the reader pane.
 
@@ -1135,6 +1133,8 @@ The full list of the supported types for the `registerEventListener` method is a
 - createAnnotationContextMenu
 - createThumbnailContextMenu
 - createSelectorContextMenu
+
+## 4.5 Reader UI API
 
 ## 4.6 HTTP Request
 
@@ -1181,11 +1181,124 @@ Zotero.debug(req.statusText); // Created
 Zotero.debug(req.response); // object
 ```
 
-## 4.7 Heavy Task with Web Worker
+## 4.7 File I/O
+
+Zotero provides a set of APIs for file I/O operations in `Zotero.File`. You can also use [IOUtils](https://firefox-source-docs.mozilla.org/dom/ioutils_migration.html) and [PathUtils](https://searchfox.org/mozilla-esr115/source/dom/chrome-webidl/PathUtils.webidl) for the operations that are not provided by `Zotero.File`.
+
+### 4.7.1 Reading file
+
+```javascript
+let path = "/Users/user/Desktop/data.json";
+let data = await Zotero.File.getContentsAsync(path);
+Zotero.debug(data);
+```
+
+### 4.7.2 Writing file
+
+```javascript
+let path = "/Users/user/Desktop/file.txt";
+let data = "This is some text.";
+await Zotero.File.putContentsAsync(path, data);
+```
+
+### 4.7.3 Renaming file
+
+```javascript
+let oldPath = "/Users/user/Desktop/old.txt";
+let newPath = "/Users/user/Desktop/new.txt";
+await Zotero.File.rename(oldPath, newPath);
+```
+
+### 4.7.4 Removing file
+
+```javascript
+let path = "/Users/user/Desktop/file.txt";
+await Zotero.File.removeIfExists(path);
+```
+
+### 4.7.5 Iterating directory
+
+```javascript
+let dirPath = "/Users/user/Desktop";
+await Zotero.File.iterateDirectory(dirPath, (entry) => {
+  Zotero.debug(entry.name);
+});
+```
+
+### 4.7.6 Picking File or Directory
+
+First, you need to import the `FilePicker` class:
+
+```javascript
+let { FilePicker } = ChromeUtils.import(
+  "chrome://zotero/content/modules/filePicker.jsm"
+);
+```
+
+Then, you can use the `FilePicker` class to pick a file or directory.
+
+Pick a directory:
+
+```javascript
+let fp = new FilePicker();
+let defaultPath = "/Users/user/Desktop";
+if (defaultPath) {
+  fp.displayDirectory = defaultPath;
+}
+fp.init(Zotero.getMainWindow(), "Select Directory", fp.modeGetFolder);
+fp.appendFilters(fp.filterAll);
+let rv = await fp.show();
+
+if (rv == fp.returnOK) {
+  let path = PathUtils.normalize(fp.file);
+  if (defaultPath == path) {
+    Zotero.debug("Same directory selected");
+  } else {
+    Zotero.debug("Selected directory: " + path);
+  }
+}
+```
+
+Pick a file (open):
+
+```javascript
+let fp = new FilePicker();
+fp.init(Zotero.getMainWindow(), "Select File", fp.modeOpen);
+// Allow `*.*` files
+fp.appendFilters(fp.filterAll);
+// Allow only `*.txt` files
+fp.appendFilter("TXT files", "*.txt");
+let rv = await fp.show();
+
+if (rv == fp.returnOK || rv == fp.returnReplace) {
+  let inputFile = Zotero.File.pathToFile(fp.file);
+  let content = await Zotero.File.getContentsAsync(inputFile);
+  Zotero.debug(content);
+}
+```
+
+Pick a file (save):
+
+```javascript
+let fp = new FilePicker();
+fp.init(Zotero.getMainWindow(), "Save File", fp.modeSave);
+// Allow `*.*` files
+fp.appendFilters(fp.filterAll);
+// Allow only `*.txt` files
+fp.appendFilter("TXT files", "*.txt");
+let rv = await fp.show();
+
+if (rv == fp.returnOK || rv == fp.returnReplace) {
+  let outputFile = Zotero.File.pathToFile(fp.file);
+  await Zotero.File.putContentsAsync(outputFile, "Hello, World!");
+}
+```
+
+## 4.8 Heavy Task with Web Worker
 
 For heavy tasks that may block the main thread, you can use a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to run the task in the background in a separate thread.
 
-### 4.7.1 Don't Block the Main Thread
+### 4.8.1 Don't Block the Main Thread
 
 For example, we have a heavy task that takes a long time to finish. It takes the item's title as input and shifts the characters by 1 in the ASCII table for each character for `10000000` times.
 
@@ -1223,7 +1336,7 @@ If you run it in the main thread, it will block the UI and make the Zotero windo
 
 > ❗️ Be aware of the performance of the code. Do not run heavy tasks in the main thread. Freezing the UI is a bad user experience.
 
-### 4.7.2 Running Heavy Task in Web Worker
+### 4.8.2 Running Heavy Task in Web Worker
 
 You may want to directly run the full code in the worker. However, the worker does not have access to the privileged APIs. It cannot access the item data directly.
 
@@ -1322,7 +1435,7 @@ The worker will run the task in the background and send the result back to the m
 
 ![Run heavy task using web worker](worker-oneway.png)
 
-### 4.7.3 Variant: Accessing Zotero APIs in the Worker
+### 4.8.3 Variant: Accessing Zotero APIs in the Worker
 
 The web worker does not have direct access to the privileged APIs. If you want to access privileged APIs in the worker, you can write a wrapper function in the main thread and call the function from the worker using message passing.
 
@@ -1443,122 +1556,9 @@ When you run the code, the worker will receive the item ID, request the item tit
 
 ![Run variant heavy task in web worker](worker-twoway.png)
 
-## 4.8 File I/O
-
-Zotero provides a set of APIs for file I/O operations in `Zotero.File`. You can also use [IOUtils](https://firefox-source-docs.mozilla.org/dom/ioutils_migration.html) and [PathUtils](https://searchfox.org/mozilla-esr115/source/dom/chrome-webidl/PathUtils.webidl) for the operations that are not provided by `Zotero.File`.
-
-**Getting the contents of a file**
-
-```javascript
-let path = "/Users/user/Desktop/data.json";
-let data = await Zotero.File.getContentsAsync(path);
-Zotero.debug(data);
-```
-
-**Saving data to a file**
-
-```javascript
-let path = "/Users/user/Desktop/file.txt";
-let data = "This is some text.";
-await Zotero.File.putContentsAsync(path, data);
-```
-
-**Renaming file**
-
-```javascript
-let oldPath = "/Users/user/Desktop/old.txt";
-let newPath = "/Users/user/Desktop/new.txt";
-await Zotero.File.rename(oldPath, newPath);
-```
-
-**Deleting file**
-
-```javascript
-let path = "/Users/user/Desktop/file.txt";
-await Zotero.File.removeIfExists(path);
-```
-
-**Iterating over files in a directory**
-
-```javascript
-let dirPath = "/Users/user/Desktop";
-await Zotero.File.iterateDirectory(dirPath, (entry) => {
-  Zotero.debug(entry.name);
-});
-```
-
-**File picker**
-
-First, you need to import the `FilePicker` class:
-
-```javascript
-let { FilePicker } = ChromeUtils.import(
-  "chrome://zotero/content/modules/filePicker.jsm"
-);
-```
-
-Then, you can use the `FilePicker` class to pick a file or directory.
-
-Pick a directory:
-
-```javascript
-let fp = new FilePicker();
-let defaultPath = "/Users/user/Desktop";
-if (defaultPath) {
-  fp.displayDirectory = defaultPath;
-}
-fp.init(Zotero.getMainWindow(), "Select Directory", fp.modeGetFolder);
-fp.appendFilters(fp.filterAll);
-let rv = await fp.show();
-
-if (rv == fp.returnOK) {
-  let path = PathUtils.normalize(fp.file);
-  if (defaultPath == path) {
-    Zotero.debug("Same directory selected");
-  } else {
-    Zotero.debug("Selected directory: " + path);
-  }
-}
-```
-
-Pick a file (open):
-
-```javascript
-let fp = new FilePicker();
-fp.init(Zotero.getMainWindow(), "Select File", fp.modeOpen);
-// Allow `*.*` files
-fp.appendFilters(fp.filterAll);
-// Allow only `*.txt` files
-fp.appendFilter("TXT files", "*.txt");
-let rv = await fp.show();
-
-if (rv == fp.returnOK || rv == fp.returnReplace) {
-  let inputFile = Zotero.File.pathToFile(fp.file);
-  let content = await Zotero.File.getContentsAsync(inputFile);
-  Zotero.debug(content);
-}
-```
-
-Pick a file (save):
-
-```javascript
-let fp = new FilePicker();
-fp.init(Zotero.getMainWindow(), "Save File", fp.modeSave);
-// Allow `*.*` files
-fp.appendFilters(fp.filterAll);
-// Allow only `*.txt` files
-fp.appendFilter("TXT files", "*.txt");
-let rv = await fp.show();
-
-if (rv == fp.returnOK || rv == fp.returnReplace) {
-  let outputFile = Zotero.File.pathToFile(fp.file);
-  await Zotero.File.putContentsAsync(outputFile, "Hello, World!");
-}
-```
-
 ## 4.9 Item Operations
 
-**Create item**
+### 4.9.1 Creating Items
 
 A typical operation might include a call to `Zotero.Items.get()` to retrieve a `Zotero.Item` instance, calls to `Zotero.Item` methods on the retrieved object to modify data, and finally a `save()` (within a transaction) or `saveTx()` (outside a transaction) to save the modified data to the database.
 
@@ -1588,7 +1588,7 @@ item.setField("date", 1599);
 await item.saveTx(); // update database with new data
 ```
 
-**Get item information**
+### 4.9.2 Getting Item Data
 
 Different item (specifically, regular item) types have different fields. To get the value of a field, use the `getField()` method. For example, to get an item's abstract, we get the `abstractNote` field from the Zotero item:
 
@@ -1598,7 +1598,7 @@ let abstract = item.getField("abstractNote");
 
 > 🔗 For more details about item fields, see [item_types_and_fields](https://www.zotero.org/support/kb/item_types_and_fields).
 
-**Get child notes for an item**
+### 4.9.3 Child notes
 
 To get the child notes for an item, we use the following code:
 
@@ -1615,7 +1615,7 @@ for (let id of noteIDs) {
 }
 ```
 
-**Get an item's related items**
+### 4.9.4 Related Items
 
 let relatedItems = item.relatedItems;
 
@@ -1630,7 +1630,7 @@ itemB.addRelatedItem(itemA);
 await itemB.saveTx();
 ```
 
-**Get attachments' full-text**
+### 4.9.5 Attachments full text
 
 The code below gets the full text of HTML and PDF items in storage and put the data in an array:
 
@@ -1651,7 +1651,7 @@ if (item.isRegularItem()) {
 
 ## 4.10 Collection Operations
 
-**Get the items in the selected collection**
+### 4.10.1 Get the items in the selected collection
 
 ```javascript
 let collection = ZoteroPane.getSelectedCollection();
@@ -1660,7 +1660,7 @@ let items = collection.getChildItems();
 let itemIDs = collection.getChildItems(true);
 ```
 
-**Create a subcollection of the selected collection**
+### 4.10.2 Create a subcollection of the selected collection
 
 ```javascript
 let currentCollection = ZoteroPane.getSelectedCollection();
@@ -1680,7 +1680,7 @@ let s = new Zotero.Search();
 s.libraryID = Zotero.Libraries.userLibraryID;
 ```
 
-**Search for items containing a specific tag**
+### 4.11.1 Search for items containing a specific tag
 
 Starting with the above code, we then use the following code to retrieve items in My Library with a particular tag:
 
@@ -1689,7 +1689,7 @@ s.addCondition("tag", "is", "tag name here");
 let itemIDs = await s.search();
 ```
 
-**Advanced searches**
+### 4.11.2 Advanced searches
 
 ```javascript
 let s = new Zotero.Search();
@@ -1706,7 +1706,7 @@ s.addCondition("includeParentsAndChildren", "true");
 ("Include parent and child ...");
 ```
 
-**Search by collection**
+### 4.11.3 Search by collection
 
 To search for a collection or a saved search you need to know the ID or key:
 
@@ -1718,14 +1718,14 @@ s.addCondition("collection", "is", collectionKey); // e.g., 'C72FDAP2'
 s.addCondition("savedSearch", "is", savedSearchKey);
 ```
 
-**Search by creator**
+### 4.11.4 Search by creator
 
 ```javascript
 let name = "smith";
 s.addCondition("creator", "contains", name);
 ```
 
-**Search by tag**
+### 4.11.5 Search by tag
 
 To search by tag, you use the tag text:
 
@@ -1734,11 +1734,11 @@ let tagName = "something";
 s.addCondition("tag", "is", tagName);
 ```
 
-**Search by other fields**
+### 4.11.6 Search by other fields
 
 The complete list of other fields available to search on is on the [search fields](https://www.zotero.org/support/dev/client_coding/javascript_api/search_fields "dev:client_coding:javascript_api:search_fields") page.
 
-**Executing the search**
+### 4.11.7 Execute the search
 
 Once the search conditions have been set up, then it's time to execute the results:
 
