@@ -315,7 +315,8 @@ If the document's default namespace is XUL, include HTML as an alternative nam
 If modifying an existing window, you can create a `<link>` element dynamically:
 
 ```javascript
-MozXULElement.insertFTLIfNeeded("make-it-red.ftl");
+// Suppose `window` is the window you're modifying
+window.MozXULElement.insertFTLIfNeeded("make-it-red.ftl");
 ```
 
 (`MozXULElement` will be a property of the window you're modifying.)
@@ -325,7 +326,8 @@ Please ensure that you have inserted the FTL into the window before making any c
 If adding to an existing window, be sure to remove the `<link>` in your plugin's `shutdown` function:
 
 ```javascript
-doc.querySelector('[href="make-it-red.ftl"]').remove();
+// Suppose `window` is the window you're modifying
+window.document.querySelector('[href="make-it-red.ftl"]').remove();
 ```
 
 #### 1.4.1.4 Preferences
@@ -1023,7 +1025,116 @@ All the code examples are supposed to run in the plugin's sandbox environment.
 
 ## 4.4 Reader UI API
 
-## 4.5 Window Menu
+## 4.5 Menu
+
+### 4.5.1 Menu Bar
+
+Zotero's main window has a menu bar that contains various menus, such as `File` and `Edit`. You can add your own menu items to the menu bar. Besides the main menu bar, you can also add menu items to the context menu.
+
+The menu bar is defined by the `menubar#main-menubar` element in `zoteroPane.xhtml`, i.e., the main window's XHTML file.
+
+To add a menu item to the menu bar, you can insert menu item or menu popup elements in the `onMainWindowLoad` hook.
+
+For example, to add a menu item to the `Tools` menu:
+
+```javascript
+// In the plugin's code
+
+function onMainWindowLoad({ window }) {
+  // ...
+
+  let document = window.document;
+
+  // Insert FTL file to the document
+  window.MozXULElement.insertFTLIfNeeded("myplugin-menu.ftl");
+  // Get the Tools menu popup
+  let toolsMenu = document.querySelector("#menu_ToolsPopup");
+  // Create a new menu item
+  let menuItem = document.createXULElement("menuitem");
+  // Set the label of the menu item
+  // The `label` is localized using the FTL file
+  menuItem.dataset.l10nId = "myplugin-menu-item";
+  menuItem.addEventListener("command", () => {
+    window.alert("My Menu Item is clicked");
+  });
+  // Insert the menu item to the Tools menu
+  toolsMenu.appendChild(menuItem);
+
+  // ...
+}
+```
+
+In the `myplugin-menu.ftl` file:
+
+```ftl
+myplugin-menu-item =
+  .label = My Menu Item
+```
+
+The full list of the query selectors for the menu bar is as follows:
+
+- `#menu_FilePopup`: for the `File` menu.
+- `#menu_EditPopup`: for the `Edit` menu.
+- `#menu_viewPopup`: for the `View` menu.
+- `#menu_goPopup`: for the `Go` menu.
+- `#menu_ToolsPopup`: for the `Tools` menu.
+- `#menu_HelpPopup`: for the `Help` menu.
+
+### 4.5.2 Library Context Menu
+
+The library context menu is the context menu that appears when you right-click on an item/collection in the library pane.
+
+Similar to the menu bar, you can add menu items to the library context menu by inserting menu item or menu popup elements in the `onMainWindowLoad` hook.
+
+The full list of the query selectors for the library context menu is as follows:
+
+- `#zotero-collectionmenu`: for the collection context menu.
+- `#zotero-itemmenu`: for the item context menu.
+
+### 4.5.3 Reader Context Menu
+
+The reader context menu is the context menu that appears when you right-click on the reader pane.
+
+Unlike the menu bar and the library context menu, the reader context menu is not defined in the main window's XHTML file. Instead, it is dynamically created by the reader instance.
+
+To add menu items to the reader context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook.
+
+For example, to add a menu item to the reader annotation context menu:
+
+```javascript
+// In the plugin's code
+
+function startup() {
+  // ...
+
+  // Register the event listener for the reader annotation context menu
+  Zotero.Reader.registerEventListener(
+    "createAnnotationContextMenu",
+    (event) => {
+      let { reader, params, append } = event;
+      // Create a new menu item
+      append({
+        label: "Test",
+        onCommand() {
+          reader._iframeWindow.alert(
+            "Selected annotations: " + params.ids.join(", ")
+          );
+        },
+      });
+    }
+  );
+
+  // ...
+}
+```
+
+The full list of the supported types for the `registerEventListener` method is as follows:
+
+- createColorContextMenu
+- createViewContextMenu
+- createAnnotationContextMenu
+- createThumbnailContextMenu
+- createSelectorContextMenu
 
 ## 4.6 HTTP Request
 
