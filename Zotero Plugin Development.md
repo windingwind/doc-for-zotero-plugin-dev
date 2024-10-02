@@ -1031,6 +1031,8 @@ All the code examples are supposed to run in the plugin's sandbox environment.
 
 For heavy tasks that may block the main thread, you can use a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to run the task in the background in a separate thread.
 
+### 4.7.1 Don't Block the Main Thread
+
 For example, we have a heavy task that takes a long time to finish. It takes the item's title as input and shifts the characters by 1 in the ASCII table for each character for `10000000` times.
 
 ```javascript
@@ -1066,6 +1068,8 @@ If you run it in the main thread, it will block the UI and make the Zotero windo
 ![Run heavy task in main thread](worker-main.png)
 
 > ❗️ Be aware of the performance of the code. Do not run heavy tasks in the main thread. Freezing the UI is a bad user experience.
+
+### 4.7.2 Running Heavy Task in Web Worker
 
 You may want to directly run the full code in the worker. However, the worker does not have access to the privileged APIs. It cannot access the item data directly.
 
@@ -1164,7 +1168,7 @@ The worker will run the task in the background and send the result back to the m
 
 ![Run heavy task using web worker](worker-oneway.png)
 
-**Variant: Accessing Zotero APIs in the Worker**
+### 4.7.3 Variant: Accessing Zotero APIs in the Worker
 
 The web worker does not have direct access to the privileged APIs. If you want to access privileged APIs in the worker, you can write a wrapper function in the main thread and call the function from the worker using message passing.
 
