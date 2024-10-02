@@ -979,19 +979,61 @@ The plugin's sandbox scope is similar to the worker scope, but with additional p
 > - Global variables are different. For example, `Zotero` is available in both scopes, but `ZoteroPane` is only available in the main window scope, as it is related to the DOM of the main window.
 > - The main window scope is recycled when the window is closed, while the plugin's sandbox scope is persistent until the plugin is unloaded.
 
-## 2.6 Reader
+## 2.6 Resource registry
 
-### 2.6.1 `Reader` vs `ReaderInstance`
+In most cases, you can directly access the resources in the plugin's directory by using the relative path with `rootURI`, e.g., `rootURI + 'style.css'`.
+
+However, for some cases, e.g. loading a script from the plugin's directory in the main window, you need a `chrome://` URI.
+
+Here is an example of registering the `chrome/content` directory of the plugin as `chrome://myplugin/content` resource:
+
+```javascript
+// In the plugin's code
+
+var chromeHandle;
+
+function startup() {
+  // ...
+
+  var aomStartup = Components.classes[
+    "@mozilla.org/addons/addon-manager-startup;1"
+  ].getService(Components.interfaces.amIAddonManagerStartup);
+  var manifestURI = Services.io.newURI(rootURI + "manifest.json");
+  chromeHandle = aomStartup.registerChrome(manifestURI, [
+    ["content", "myplugin", rootURI + "chrome/content/"],
+  ]);
+
+  // ...
+}
+
+function shutdown() {
+  // ...
+
+  // Unregister the chrome handle for the plugin uri
+  if (chromeHandle) {
+    chromeHandle.destruct();
+    chromeHandle = null;
+  }
+
+  // ...
+}
+```
+
+Now, you can use the `chrome://myplugin/content/` URI to access the resources in the `chrome/content` directory. For example, the URI of file `${pluginRoot}/chrome/content/script.js` would be `chrome://myplugin/content/script.js`.
+
+## 2.7 Reader
+
+### 2.7.1 `Reader` vs `ReaderInstance`
 
 ![uml](./uml_reader.png)
 
-### 2.6.2 Views
+### 2.7.2 Views
 
-#### 2.6.2.1 Snapshot View
+#### 2.7.2.1 Snapshot View
 
-#### 2.6.2.2 ePub View
+#### 2.7.2.2 ePub View
 
-#### 2.6.2.3 PDF View
+#### 2.7.2.3 PDF View
 
 # 3 UX Guidelines
 
