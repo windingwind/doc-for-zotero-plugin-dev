@@ -845,7 +845,7 @@ The `Zotero.Notifier` object is used to manage the notification system. It has t
 <details>
 <summary>All available event and types</summary>
 
-The following are the available events and types. Not all types are available for all events.
+The following are the available events and types. Be aware that not all types are available for all events. You can dive into [the source](https://github.com/search?q=repo%3Azotero%2Fzotero+%2Fzotero.notifier.%28queue%7Ctrigger%29%2F&type=code) for all possible notifies.
 
 ```typescript
 type Event =
