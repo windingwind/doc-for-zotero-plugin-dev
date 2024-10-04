@@ -290,6 +290,8 @@ Any `.ftl` files you place in the locale subfolders will be automatically regist
 
 All supported locales are list in [locales](https://github.com/zotero/zotero/tree/main/chrome/locale).
 
+> ❗️ Make sure to namespace your Fluent files' name and the keys within them to avoid conflicts with other plugins or Zotero itself.
+
 **Using a Fluent File in a Document**
 
 Fluent files you include with your plugin can be applied to a document with a `<link>` element.
@@ -329,6 +331,8 @@ If adding to an existing window, be sure to remove the `<link>` in your plugin
 // Suppose `window` is the window you're modifying
 window.document.querySelector('[href="make-it-red.ftl"]').remove();
 ```
+
+> 🔗 For more details about the Fluent localization system, see [Fluent documentation](https://projectfluent.org/dom-l10n-documentation/overview.html).
 
 #### 1.4.1.4 Preferences
 
@@ -1127,11 +1131,38 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
 
 For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/itemTreeManager.js).
 
-## 4.2 Adding Pane to Preferences Window
+## 4.2 Item Pane Section API
+
+## 4.3 Adding Pane to Preferences Window
 
 The preferences window is used to configure the settings of Zotero. Plugins should add their own panes to the preferences window for users to configure the plugin settings.
 
-## 4.3 Item Pane Section API
+To add a pane to the preferences window, you can use the `Zotero.PreferencePanes.register` method in the `startup` hook. The registered pane will be automatically unregistered when the plugin is unloaded. For more advanced options, you can refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/preferencePanes.js).
+
+```javascript
+Zotero.PreferencePanes.register({
+  pluginID: "make-it-red@zotero.org",
+  src: "prefs.xhtml",
+  scripts: ["prefs.js"],
+  stylesheets: ["prefs.css"],
+});
+```
+
+The pane's `src` should point to a file containing a XUL/XHTML fragment. Fragments cannot have a `<!DOCTYPE`. The default namespace is XUL, and HTML tags are accessible under `html:`. A simple pane could look like:
+
+```html
+<linkset>
+  <html:link rel="localization" href="make-it-red.ftl" />
+</linkset>
+<groupbox onload="MakeItRed_Preferences.init()">
+  <label><html:h2>Colors</html:h2></label>
+  <!-- [...] -->
+</groupbox>
+```
+
+Organizing your pane as a sequence of top-level `<groupbox>`es ' will optimize it for the new preferences search mechanism. By default, all text in the DOM is searchable. If you want to manually add keywords to an element (for example, a button that opens a dialog), set its `data-search-strings-raw` property to a comma-separated list.
+
+Note that all `class`, `id`, and `data-l10n-id` in the preference pane should be namespaced to avoid conflicting between plugins.
 
 ## 4.4 Menu
 
