@@ -1073,7 +1073,7 @@ For example, to add a custom column to display the reversed title of the item:
 const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
   dataKey: "rtitle",
   label: "Reversed Title",
-  pluginID: "make-it-red@zotero.org", // Replace with your plugin ID
+  pluginID: "myplugin@mydomain.com", // Replace with your plugin ID
   dataProvider: (item, dataKey) => {
     return item.getField("title").split("").reverse().join("");
   },
@@ -1103,7 +1103,7 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
   htmlLabel: '<span style="color: red;">reversed title</span>', // use HTML in the label. This will override the label and iconPath property
   showInColumnPicker: true, // show in the column picker
   columnPickerSubMenu: true, // show in the column picker submenu
-  pluginID: "make-it-red@zotero.org", // plugin ID, which will be used to unregister the column when the plugin is unloaded
+  pluginID: "myplugin@mydomain.com", // plugin ID, which will be used to unregister the column when the plugin is unloaded
   dataProvider: (item, dataKey) => {
     // item: the current item in the row
     // dataKey: the dataKey of the column
@@ -1127,7 +1127,9 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
 
 For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/itemTreeManager.js).
 
-## 4.2 Preference Page API
+## 4.2 Adding Pane to Preferences Window
+
+The preferences window is used to configure the settings of Zotero. Plugins should add their own panes to the preferences window for users to configure the plugin settings.
 
 ## 4.3 Item Pane Section API
 
@@ -1203,7 +1205,7 @@ The reader context menu is the context menu that appears when you right-click on
 
 Unlike the menu bar and the library context menu, the reader context menu is not defined in the main window's XHTML file. Instead, it is dynamically created by the reader instance.
 
-To add menu items to the reader context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. Note that you need to call `Zotero.Reader.unregisterEventListener` in the `shutdown` hook to avoid memory leaks.
+To add menu items to the reader context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. The registered event listener will be automatically unregistered when the plugin is unloaded.
 
 For example, to add a menu item to the reader annotation context menu:
 
@@ -1227,7 +1229,8 @@ function startup() {
           );
         },
       });
-    }
+    },
+    "myplugin@mydomain.com" // Replace with your plugin ID
   );
 
   // ...
@@ -1236,39 +1239,43 @@ function startup() {
 
 The full list of the supported types for the `registerEventListener` method is as follows:
 
-- createColorContextMenu
-- createViewContextMenu
-- createAnnotationContextMenu
-- createThumbnailContextMenu
-- createSelectorContextMenu
+- `createColorContextMenu`: triggered when the top toolbar's color picker menu is created
+- `createViewContextMenu`: triggered when the viewer's right-click menu is created
+- `createAnnotationContextMenu`: triggered when the left sidebar's annotation right-click menu is created
+- `createThumbnailContextMenu`: triggered when the left sidebar's thumbnail right-click menu is created
+- `createSelectorContextMenu`: triggered when the left sidebar's tag selector right-click menu is created
 
 For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
 
 ## 4.5 Injecting to Reader UI
 
-The reader UI is inside an iframe. To inject elements to the reader UI, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. Note that you need to call `Zotero.Reader.unregisterEventListener` in the `shutdown` hook to avoid memory leaks.
+The reader UI is inside an iframe. To inject elements to the reader UI, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. The registered event listener will be automatically unregistered when the plugin is unloaded.
 
 For example, to add an element to display the translation of the selected text in the reader's text selection popup:
 
 ```javascript
-Zotero.Reader.registerEventListener("renderTextSelectionPopup", (event) => {
-  let { reader, doc, params, append } = event;
-  let container = doc.createElement("div");
-  container.append("Loading…");
-  append(container);
-  setTimeout(
-    () =>
-      container.replaceChildren("Translated text: " + params.annotation.text),
-    1000
-  );
-});
+Zotero.Reader.registerEventListener(
+  "renderTextSelectionPopup",
+  (event) => {
+    let { reader, doc, params, append } = event;
+    let container = doc.createElement("div");
+    container.append("Loading…");
+    append(container);
+    setTimeout(
+      () =>
+        container.replaceChildren("Translated text: " + params.annotation.text),
+      1000
+    );
+  },
+  "myplugin@mydomain.com" // Replace with your plugin ID
+);
 ```
 
 The full list of the supported types for the `registerEventListener` method is as follows:
 
-- renderTextSelectionPopup
-- renderSidebarAnnotationHeader
-- renderToolbar
+- `renderTextSelectionPopup`: triggered when the selection popup is rendered
+- `renderSidebarAnnotationHeader`: triggered when the left sidebar's annotation header line is rendered
+- `renderToolbar`: triggered when the reader's top toolbar is rendered
 
 For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
 
