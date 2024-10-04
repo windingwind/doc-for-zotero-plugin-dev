@@ -1137,7 +1137,7 @@ The reader context menu is the context menu that appears when you right-click on
 
 Unlike the menu bar and the library context menu, the reader context menu is not defined in the main window's XHTML file. Instead, it is dynamically created by the reader instance.
 
-To add menu items to the reader context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook.
+To add menu items to the reader context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. Note that you need to call `Zotero.Reader.unregisterEventListener` in the `shutdown` hook to avoid memory leaks.
 
 For example, to add a menu item to the reader annotation context menu:
 
@@ -1176,7 +1176,31 @@ The full list of the supported types for the `registerEventListener` method is a
 - createThumbnailContextMenu
 - createSelectorContextMenu
 
-## 4.5 Reader UI API
+## 4.5 Injecting to Reader UI
+
+The reader UI is inside an iframe. To inject elements to the reader UI, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. Note that you need to call `Zotero.Reader.unregisterEventListener` in the `shutdown` hook to avoid memory leaks.
+
+For example, to add an element to display the translation of the selected text in the reader's text selection popup:
+
+```javascript
+Zotero.Reader.registerEventListener("renderTextSelectionPopup", (event) => {
+  let { reader, doc, params, append } = event;
+  let container = doc.createElement("div");
+  container.append("Loading…");
+  append(container);
+  setTimeout(
+    () =>
+      container.replaceChildren("Translated text: " + params.annotation.text),
+    1000
+  );
+});
+```
+
+The full list of the supported types for the `registerEventListener` method is as follows:
+
+- renderTextSelectionPopup
+- renderSidebarAnnotationHeader
+- renderToolbar
 
 ## 4.6 HTTP Request
 
