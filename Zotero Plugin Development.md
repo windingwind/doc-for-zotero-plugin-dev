@@ -1131,7 +1131,43 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
 
 For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/itemTreeManager.js).
 
-## 4.2 Item Pane Section API
+## 4.2 Adding Custom Section to Item Pane
+
+The item pane displays the detailed information of the currently selected or viewed item. You can customize the item pane by adding custom sections to display additional information.
+
+To add a custom section to the item pane, you can use the `Zotero.ItemPaneManager.registerSection` method in the `startup` hook. The custom sections can be automatically unregistered when the plugin is unloaded.
+
+The example below shows how to register a custom section with the item details (e.g., `id` and `editable`) displayed. `paneID`, `pluginID`, `header`, and `sidenav` are required.
+
+```javascript
+const registeredID = Zotero.ItemPaneManager.registerSection({
+  paneID: "custom-section-example",
+  pluginID: "example@example.com",
+  header: {
+    l10nID: "example-item-pane-header",
+    icon: rootURI + "icons/16/universal/book.svg",
+  },
+  sidenav: {
+    l10nID: "example-item-pane-header",
+    icon: rootURI + "icons/20/universal/book.svg",
+  },
+  onRender: ({ body, item, editable, tabType }) => {
+    body.textContent = JSON.stringify({
+      id: item?.id,
+      editable,
+      tabType,
+    });
+  },
+});
+```
+
+To remove the custom section:
+
+```javascript
+Zotero.ItemPaneManager.unregisterSection(registeredID);
+```
+
+More advanced options are documented in the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/itemPaneManager.js).
 
 ## 4.3 Adding Pane to Preferences Window
 
