@@ -1990,8 +1990,17 @@ if (item && !item.isNote()) {
 }
 ```
 
-## 4.13 Unload the Plugin
+## 4.13 Shutting Down
 
-### 4.13.1 DOM Elements and Listeners
+When the plugin is shut down, you should clean up any resources that were allocated during the plugin's lifetime. This includes unregistering any event listeners, closing any open connections, and releasing any resources that were allocated.
 
-### 4.13.2 Notifier and Other Observers
+The list of tasks to perform in the `shutdown` hook includes:
+
+- Close any windows, tabs, or popups that were opened by the plugin.
+- Remove any DOM elements, including styles, scripts, and locales that were added by the plugin.
+- Remove references to any window or objects within it, including event listeners and any references to the DOM elements.
+- Remove any attributes or properties that were added to the window object or the Zotero object.
+- Close any open connections, such as database connections or network connections.
+- Stop any running tasks, such as timers or web workers.
+
+For the plugin APIs provided by Zotero, you do not need to explicitly do anything in the `shutdown` hook. The plugin APIs will automatically clean up the resources when the plugin is unloaded.
