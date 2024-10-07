@@ -139,14 +139,6 @@ When running Zotero from source, passing `-d` flag to the [build_and_run scri
 >
 > Run `Zotero.getMainWindow().console.log("Hello, World!")` from the Run JS window and check the devtools' console.
 
-### 1.3.4 Conclusion
-
-In section 1.3, we introduced how to develop your first Zotero plugin, run the plugin, and debug the plugin. We also provided some tips for debugging the plugin.
-
-By now, you should have a basic understanding of how to run the example plugin and how to debug it. You might still don't know how to create the features you want, but don't worry, we'll cover that in the following sections.
-
-In section 1.4, we'll introduce the anatomy of a Zotero plugin, so that you can have an overview of the plugin structure and how it works.
-
 ## 1.4 Plugin Anatomy
 
 In this section, we'll introduce the structure of a Zotero plugin, including the plugin file structure and the update mechanism.
@@ -380,6 +372,10 @@ Here is the official plugin example's update manifest:
   }
 }
 ```
+
+### 1.5 Contact Us
+
+If you have questions about development or would like to discuss development with Zotero developers, you can consult and post to the [zotero-dev mailing list](https://groups.google.com/group/zotero-dev). (Please do not use the mailing list for [user support](https://www.zotero.org/support/getting_help) questions. Questions regarding the Zotero API, however, should always go to zotero-dev.)
 
 # 2 Concepts
 
@@ -1024,20 +1020,6 @@ function shutdown() {
 ```
 
 Now, you can use the `chrome://myplugin/content/` URI to access the resources in the `chrome/content` directory. For example, the URI of file `${pluginRoot}/chrome/content/script.js` would be `chrome://myplugin/content/script.js`.
-
-## 2.7 Reader
-
-### 2.7.1 `Reader` vs `ReaderInstance`
-
-![uml](./uml_reader.png)
-
-### 2.7.2 Views
-
-#### 2.7.2.1 Snapshot View
-
-#### 2.7.2.2 ePub View
-
-#### 2.7.2.3 PDF View
 
 # 3 UX Guidelines
 
