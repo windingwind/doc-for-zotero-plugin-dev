@@ -4,46 +4,56 @@
 
 ## 1.1 What is Zotero Plugin
 
-Plugins can customize the experience of using Zotero and enhance its capability by adding functions and features to Zotero.
+Zotero plugins allow users to customize and extend the capabilities of the Zotero reference management tool. These plugins can add new features, improve workflows, or enhance Zotero's user experience.
 
-The Zotero plugin has a similar structure of browser's web-extension, while developing a Zotero plugin is quite different from developing a browser extension. As a desktop application, Zotero allows plugins to be very flexible and powerful, like using Zotero database, accessing local files, and communicating with other applications.
+While Zotero plugins share some structural similarities with browser extensions, developing a plugin for Zotero differs in important ways. Zotero is a desktop application, meaning that its plugins can interact directly with the Zotero database, access local files, and communicate with external software. This makes Zotero plugins highly flexible and powerful, allowing for more advanced customizations compared to browser-based extensions.
+
+For example, many plugins leverage Zotero's platform and APIs to:
+
+- Automate citation formatting
+- Integrate Zotero with other research or productivity tools
+- Customize Zotero’s interface to fit specific workflows
+
+Don’t worry if some of these features sound unfamiliar. In this guide, we’ll walk you through the process step by step, ensuring that even beginners can get up to speed with plugin development.
 
 ## 1.2 Prerequisites
 
-- Basic knowledge of web technologies, including [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML), [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS), and [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
-- A computer with [Zotero](https://www.zotero.org/download/) installed.
-- And most importantly, a good idea of what you want to build!
+Before you begin, ensure you have the following:
+
+- **Basic knowledge of web technologies**: Familiarity with [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML), [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS), and [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
+- **Zotero installed**: Download and install the latest version of [Zotero Beta](https://www.zotero.org/support/beta_builds).
+- **A feature idea**: Think of a simple feature or functionality you’d like to add to Zotero. Even small changes can help you get familiar with plugin development.
 
 ## 1.3 Your First Plugin
 
-In this section, we'll guide you through developing your first Zotero plugin. We'll use the official example plugin [Make-It-Red](https://github.com/zotero/make-it-red) as an example.
+In this section, you’ll learn how to develop a simple Zotero plugin using the official example plugin, [Make-It-Red](https://github.com/zotero/make-it-red). By the end, you will have a working plugin that modifies Zotero’s appearance. This is a simple project that is ideal for beginners who want to get familiar with Zotero plugin development.
 
 ### 1.3.1 Developing the Plugin
 
-Make sure you have [Git](https://git-scm.com/) and [NodeJS](https://nodejs.org/) installed and configured.
+Before starting, ensure you have [Git](https://git-scm.com/) and [NodeJS](https://nodejs.org/) installed. Git allows you to clone (download) the project, and NodeJS is required to install and build the plugin’s dependencies.
 
-First, open the terminal and run the following code to clone the official plugin example repo make-it-red:
+First, open your terminal and clone the official example plugin repository:
 
 ```bash
 git clone git@github.com:zotero/make-it-red.git
 ```
 
-Download necessary dependencies:
+Next, enter the project folder and install the required dependencies (libraries the plugin needs to work):
 
 ```bash
 cd ./make-it-red
 npm install
 ```
 
-Run the following commands to build the plugin:
+Once the dependencies are installed, build the plugin by running the following command:
 
 ```bash
 npm run build
 ```
 
-The build results are `build/make-it-red-2.0.xpi`.
+The build process will generate the plugin file `build/make-it-red-2.0.xpi`.
 
-> 🔗 For Zotero plugins, we use `xpi` file extension. It is zipped with all the script files and resources. See [Plugin File Structure](#141-plugin-file-structure) for more details about the XPI file.
+> 🔗 Zotero plugins use the `.xpi` file extension, which contains all the plugin’s scripts and resources. See [Plugin File Structure](#141-plugin-file-structure) for more details.
 
 ### 1.3.2 Running the Plugin
 
@@ -51,48 +61,58 @@ The build results are `build/make-it-red-2.0.xpi`.
 
 For plugin developers, it's always recommended to use [Beta Builds](https://www.zotero.org/support/beta_builds).
 
-> 🔗 During the plugin development, it is strongly recommended to use a separate profile. You can follow [this document](https://www.zotero.org/support/kb/multiple_profiles) to create a new profile. Be cautious when developing plugins on profile with your important data!
+> 🔗 When developing plugins, it’s highly recommended to use a separate profile to protect your main library. Follow [this guide](https://www.zotero.org/support/kb/multiple_profiles) to create a new profile.
 
-In the menu bar, click `Tools` -> `Plugin` to open the _Plugins Manager_ window.
+In the Zotero menu bar, click `Tools` -> `Plugins` to open the _Plugins Manager_ window.
 
-To install the plugin, from the settings (⚙️) menu in the Plugins Manager, click `Install Plugin From File...` and select the `xpi` file we just built. Alternatively, you can drag-drop the `xpi` file to the _Plugin Manager_ window.
+To install the plugin:
 
-After the plugin is successfully installed and enabled, you can see the text in the items list and the library list are turned to red, as indicated by the example plugin's name _Make-It-Red_.
+1. Click the settings (⚙️) icon in the top-right of the _Plugins Manager_ window.
+2. Select `Install Plugin From File...` and choose the `xpi` file you built.
+3. Alternatively, drag-and-drop the `xpi` file into the _Plugins Manager_ window.
+
+After the plugin is successfully installed, it will be listed in the _Plugins Manager_. You can verify that the _Make-It-Red_ plugin works by checking the text in the items and library list—if it turns red, the installation was successful.
 
 ![Run Plugin Result](run-plugin.png)
 
 #### 1.3.2.2 Loading from Source Code
 
-It could be annoying to manually install the plugin every time you make a change. You can load the plugin from the source code directly. Every time you start Zotero, the plugin will be loaded using the latest code.
+It can be frustrating to manually install the plugin every time you make a change. To streamline development, you can load the plugin directly from the source code, ensuring that the latest version is used whenever Zotero is started.
 
 After creating your plugin's source directory with sample code, you can tell Zotero to load the plugin by creating an extension proxy file. (This is a technique that used to be possible for Firefox extension development, though it's since been discontinued in Firefox.)
 
 1. Close Zotero.
-2. Create a text file in the 'extensions' directory of your Zotero profile directory named after the extension id (e.g., `myplugin@mydomain.org`). The file contents should be the absolute path to the root of your plugin source code directory, where your `manifest.json` or `bootstrap.js` file is located.
-3. Open `prefs.js` in the Zotero profile directory in a text editor and delete the lines containing `extensions.lastAppBuildId` and `extensions.lastAppVersion`. Save the file and restart Zotero. This will force Zotero to read the 'extensions' directory and install your plugin from source, after which you should see it listed in Tools → Add-ons. This is only necessary once.
-4. Whenever you make changes to your plugin code, start up Zotero from the command line and pass the `-purgecaches` flag to force Zotero to re-read any cached files. (This may no longer be necessary with Zotero 7.) You'll likely want to make an alias or shell script that also includes the `-ZoteroDebugText` and `-jsconsole` flags and perhaps `-p <Profile>`, where `<Profile>` is the name of a development profile.
+2. Create a text file in the `extensions` directory of your Zotero profile directory named after the extension id (e.g., `myplugin@mydomain.org`). The file contents should be the absolute path to the root of your plugin source code directory, where your `manifest.json` or `bootstrap.js` file is located.
+3. Open `prefs.js` in the Zotero profile directory in a text editor and delete the lines containing `extensions.lastAppBuildId` and `extensions.lastAppVersion`. Save the file and restart Zotero. This will force Zotero to read the 'extensions' directory and install your plugin from the source, after which you should see it listed in Tools → Add-ons. This is only necessary once.
+4. Whenever you make changes to your plugin code, start Zotero from the command line and pass the `-purgecaches` flag to force Zotero to re-read any cached files. (This may no longer be necessary with Zotero 7.) You'll likely want to make an alias or shell script that also includes the `-ZoteroDebugText` and `-jsconsole` flags and perhaps `-p <Profile>`, where `<Profile>` is the name of a development profile.
 
 > 💡 Try this out!
 >
 > After setting up the development environment, make a change to the plugin code and see the result in Zotero.
 > Let's _make it blue_, instead of red.
 >
-> 1. Open `src/style.css`, change the `color: red;` in line 2 to `color: blue`.
-> 2. Run `npm run build` again, then install the plugin again manually.
-> 3. Quit (Ctrl/Cmd + Q) and restart Zotero
-> 4. You will see the text in the items list and the library list are turned to blue now.
+> Modify your plugin's code and observe the changes in Zotero.
+>
+> 1. Open `src/style.css` and change `color: red;` to `color: blue;`.
+> 2. Run `npm run build`, then manually reinstall the plugin.
+> 3. Restart Zotero and you'll see the items list now displayed in blue.
 
 ### 1.3.3 Debugging the Plugin
 
 #### 1.3.3.1 _Run JavaScript_ Window
 
-To run JavaScript in Zotero, the easiest way is using the _Run JavaScript_ window.
+You can run JavaScript code directly in Zotero using the _Run JavaScript_ window, which is the easiest way to test code snippets.
 
-In the menu bar, click `Tools` -> `Developer` -> `Run JavaScript`. Type the code in the left panel and click `Run` to execute. The result will be shown on the right panel.
+To access the window:
+
+1. Go to `Tools` → `Developer` → `Run JavaScript`.
+2. Type your code in the left panel.
+3. Click `Run`, and the results will be displayed on the right.
 
 > 💡 Try this out!
 >
 > Select an item in the library, then run `ZoteroPane.getSelectedItems()[0]` in the _Run JavaScript_ window.
+> This will return the first selected item in your library.
 
 ![Run JS window](run-js.png)
 
@@ -100,13 +120,13 @@ In the menu bar, click `Tools` -> `Developer` -> `Run JavaScript`. Type the code
 
 #### 1.3.3.2 Debug Output
 
-Zotero has a built-in debug output system that are more friendly to users for providing feedback and debugging information.
+Zotero provides a built-in debug output system that helps developers track issues.
 
-Plugin developers can use the `Zotero.debug` function to output messages to the debug console. The debug console can be opened by clicking `Help` -> `Debug Output Logging` -> `View Output`.
+To log debug messages, use the `Zotero.debug` function. You can view the debug output by going to `Help` → `Debug Output Logging` → `View Output`.
 
 > 💡 Try this out!
 >
-> Run `Zotero.debug("Hello, World!")` in the _Run JavaScript_ window and check the debug output.
+> In the _Run JavaScript_ window, run the code `Zotero.debug("Hello, World!")`. Then check the debug output window to see the message.
 
 ![alt text](debug-output.png)
 
@@ -116,11 +136,11 @@ Although it's not possible for plugin developers to access users' debug output u
 
 #### 1.3.3.3 DevTools
 
-Since Zotero is based on Firefox, it's possible to use the Firefox Developer Tools to interact with the DOM, set code breakpoints, follow network requests, and more.
+Since Zotero is built on Firefox, you can use the Firefox Developer Tools to interact with Zotero’s interface, inspect the DOM (Document Object Model), set breakpoints in your code, monitor network requests, and much more.
 
-> 🔗 For more details about the devtools, see [Firefox DevTools User Docs](https://firefox-source-docs.mozilla.org/devtools-user/).
+> 🔗 For a full guide to Firefox’s developer tools, refer to the [Firefox DevTools User Docs](https://firefox-source-docs.mozilla.org/devtools-user/).
 
-Zotero 7 beta builds include the Firefox 115 devtools. To start a beta build with the Browser Toolbox open, pass the `-jsdebugger` flag on the command line:
+Zotero beta builds include the Firefox 115 devtools. To start a beta build with the Browser Toolbox open, pass the `-jsdebugger` flag on the command line:
 
 ```bash
 # the /path/to/zotero is the path to the Zotero executable
@@ -131,29 +151,27 @@ Zotero 7 beta builds include the Firefox 115 devtools. To start a beta build wit
 /path/to/zotero -ZoteroDebugText -jsdebugger
 ```
 
-When running Zotero from source, passing `-d` flag to the [build_and_run script](https://www.zotero.org/support/dev/client_coding/building_the_desktop_app#helper_script "dev:client_coding:building_the_desktop_app") will rebuild (`-r`) with the devtools included and pass `-jsdebugger`.
+If you’re running Zotero from source code, use the `-d` flag with the  [build_and_run script](https://www.zotero.org/support/dev/client_coding/building_the_desktop_app#helper_script "dev:client_coding:building_the_desktop_app"), which will rebuild Zotero with devtools included and launch it with the `-jsdebugger` flag.
 
 ![DevTools](devtools.png)
 
 > 💡 Try this out!
 >
-> Run `Zotero.getMainWindow().console.log("Hello, World!")` from the Run JS window and check the devtools' console.
+> In the Run JS window, run `Zotero.getMainWindow().console.log("Hello, World!")`. Check the devtools' console to see the output.
 
 ## 1.4 Plugin Anatomy
 
-In this section, we'll introduce the structure of a Zotero plugin, including the plugin file structure and the update mechanism.
+In this section, we’ll cover the structure of a Zotero plugin, including the key files and how the plugin’s metadata is organized.
 
 ### 1.4.1 Plugin File Structure
 
-A plugin consists of a collection of files, packaged for distribution and installation. It is similar to a web extension, but with some differences.
+A Zotero plugin is made up of a set of files, similar to a web extension, but with specific modifications to work within Zotero’s ecosystem.
 
 #### 1.4.1.1 manifest.json
 
-The `manifest.json` file is the metadata file for the plugin. It contains the plugin's name, version, description, and other information.
+The `manifest.json` file holds the metadata for your plugin, such as its name, version, and compatibility details. This file must be in the root directory of the plugin.
 
-This file must be in the root directory of the plugin.
-
-Here is an example of a `manifest.json` file:
+Here’s a sample `manifest.json`:
 
 ```json
 {
@@ -175,20 +193,20 @@ Here is an example of a `manifest.json` file:
 
 Explanation of the fields in the `manifest.json` file are as follows. The fields marked with `*` are required.
 
-- `manifest_version`\*: The version of the manifest file format. Currently, the only valid value is `2`.
+- `manifest_version`\*: The version of the manifest file format. The only valid value is `2`.
 - `name`\*: The name of the plugin.
-- `version`\*: The version of the plugin. The version number should follow [this](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version) format.
+- `version`\*: The version of the plugin. This follows [this](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version) version format.
 - `description`: A brief description of the plugin. It will be shown in the _Plugin Manager_.
 - `homepage_url`: The URL of the plugin's homepage. It will be shown in the _Plugin Manager_.
 - `applications/zotero`\*: The application-specific information. It is based on [browser_specific_settings.gecko](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings) and must be present for Zotero to install your plugin.
-  - `id`\*: The unique identifier for the plugin. It should be in the format of `myplugin@mydomain.org`.
+  - `id`\*: The unique identifier for the plugin. It should be in the format `myplugin@mydomain.org`.
   - `update_url`: The URL of the update manifest. See also [Plugin Update](#142-plugin-update).
   - `strict_min_version`: The minimum version of Zotero that the plugin is compatible with. You should set it to `x.x.*` of the latest Zotero minor version that you have tested your plugin with.
   - `strict_max_version`: The maximum version of Zotero that the plugin is compatible with.
 
 #### 1.4.1.2 bootstrap.js
 
-The `bootstrap.js` file is the main script file for the plugin. It is executed in the plugin's lifecycle, such as when the plugin is loaded, unloaded, or updated. It must be in the root directory of the plugin.
+The `bootstrap.js` file is the main script file for the plugin. It is executed during the plugin's lifecycle, such as when the plugin is loaded, unloaded, or updated. This file must be in the root directory of the plugin.
 
 A `bootstrap.js` file containing functions to handle various events:
 
@@ -209,12 +227,12 @@ Plugin lifecycle hooks are modeled after the legacy Mozilla [bootstrapped-exten
 Plugin lifecycle hooks are passed two parameters:
 
 - An object with these properties:
-  - `id`, a string of the plugin id
-  - `version`, a string of the plugin version
-  - `rootURI`, a string URL pointing to the plugin's files. For XPIs, this will be a `jar:file:///` URL. This value will always end in a slash, so you can append a relative path to get a URL for a file bundled with your plugin (e.g., `rootURI + 'style.css'`).
+  - `id`: The string of the plugin's unique identifier.
+  - `version`: The string of the current version of the plugin.
+  - `rootURI`: A path string pointing to the plugin files. You can use this to load specific files within your plugin, like `rootURI + 'style.css'`.
 - A number representing the reason for the event, which can be checked against the following constants: `APP_STARTUP`, `APP_SHUTDOWN`, `ADDON_ENABLE`, `ADDON_DISABLE`, `ADDON_INSTALL`, `ADDON_UNINSTALL`, `ADDON_UPGRADE`, `ADDON_DOWNGRADE`
 
-Any initialization unrelated to specific windows should be triggered by `startup`, and removal should be triggered by `shutdown`.
+Any initialization that isn’t specific to a window should be handled in the `startup` function, and cleanup should occur in the `shutdown` function.
 
 The `install()` and `startup()` bootstrap methods are called only after Zotero has initialized, and the `Zotero` object is automatically made available in the bootstrap scope, along with `Services`, `Cc`, `Ci`, and other Mozilla and browser objects.
 
@@ -222,16 +240,14 @@ Bootstrapped plugins can be disabled or uninstalled without restarting Zotero, s
 
 **Window Hooks**
 
-Window hooks, available only in Zotero 7, are called on the opening and closing of the main Zotero window:
+Window hooks let you perform actions when the main Zotero window opens or closes. This can be helpful for managing UI changes or other window-specific behaviors:
 
-- `onMainWindowLoad()`
-- `onMainWindowUnload()`
+- `onMainWindowLoad()`: Called when the main Zotero window is opened.
+- `onMainWindowUnload()`: Called when the main Zotero window is closed.
 
-Window hooks are passed one parameter:
+These hooks are passed an object containing the `window` property, which refers to the window being opened or closed.
 
-- An object with a `window` property containing the target window
-
-Main windows might already be opened when the plugin is loaded, in which case `onMainWindowLoad` will not be called for those windows. You should always check for the existence of any main windows and call it manually if necessary.
+If the main Zotero window is already open when your plugin loads, `onMainWindowLoad` won't be called on the existing windows. You'll need to manually call it for any existing windows:
 
 ```javascript
 // In bootstrap.js
@@ -245,9 +261,9 @@ async function startup(data, reason) {
 }
 ```
 
-On some platforms, the main window can be opened and closed multiple times during a Zotero session, so any window-related activities, such as modifying the main UI, adding menus, or binding shortcuts must be performed by `onMainWindowLoad` so that new main windows contain your changes.
+Since the main window might be opened and closed multiple times during a session, changes you make to the UI (such as adding buttons or menus) should be done inside `onMainWindowLoad`, ensuring that every new window contains your updates.
 
-You must then **remove all references to a window or objects within it, cancel any timers, etc.**, when `onMainWindowUnload` is called, or else you'll risk creating a memory leak every time the window is closed. DOM elements added to a window will be automatically destroyed when the window is closed, so you only need to remove those in `shutdown()`, which you can do by cycling through all windows:
+When a window is closed, `onMainWindowUnload` is triggered. This is the time to clean up by removing any references to the window or objects within it, canceling any active timers, etc. This prevents memory leaks:
 
 ```javascript
 function shutdown() {
@@ -260,17 +276,15 @@ function shutdown() {
 
 > Currently, only one main window is supported, but some users may find ways to open multiple main windows, and this will be officially supported in a future version.
 
-Some plugins may require additional hooks in Zotero itself to work well as bootstrapped plugins. If you're having trouble accomplishing something you were doing previously via XUL overlays, let us know on [zotero-dev](https://groups.google.com/g/zotero-dev "https://groups.google.com/g/zotero-dev").
-
 #### 1.4.1.3 Locale
 
-Mozilla has introduced a new localization system called [Fluent](https://projectfluent.org/ "https://projectfluent.org/"), which replaces both `.dtd` and `.properties` localization. While both `.dtd` and `.properties` are still supported in the current version of Zotero 7, `.dtd` files and `.properties` files will be remove in the future. To ensure future compatibility, plugin should aim to use Fluent for localization going forward.
+Mozilla has introduced a new localization system called [Fluent](https://projectfluent.org/), replacing the older `.dtd` and `.properties` systems. While these older formats are still supported in Zotero 7, they will be removed in future versions. For future-proofing your plugin, it's recommended to use Fluent for localization.
 
-See the [Fluent Syntax Guide](https://projectfluent.org/fluent/guide/ "https://projectfluent.org/fluent/guide/") for more information on creating Fluent files.
+Check out the [Fluent Syntax Guide](https://projectfluent.org/fluent/guide/ "https://projectfluent.org/fluent/guide/") to learn how to write Fluent files.
 
 **Registering Fluent Files**
 
-To use Fluent in your plugin, create a `locale` folder in your plugin root with subfolders for each locale, and place `.ftl` files within each locale folder:
+To add Fluent to your plugin, create a `locale` folder at the root of your plugin, and then add subfolders for each language. Place your `.ftl` (Fluent) files in these subfolders. For example:
 
 ```
 locale/en-US/make-it-red.ftl
@@ -280,9 +294,9 @@ locale/zh-CN/make-it-red.ftl
 
 Any `.ftl` files you place in the locale subfolders will be automatically registered in Zotero's localization system.
 
-All supported locales are list in [locales](https://github.com/zotero/zotero/tree/main/chrome/locale).
+To see a full list of supported languages, check the [Zotero locales](https://github.com/zotero/zotero/tree/main/chrome/locale).
 
-> ❗️ Make sure to namespace your Fluent files' name and the keys within them to avoid conflicts with other plugins or Zotero itself.
+> ❗️ It’s important to namespace the file names and keys in your Fluent files to avoid conflicts with Zotero or other plugins. For example, use file names like `make-it-red.ftl` instead of `strings.ftl`.
 
 **Using a Fluent File in a Document**
 
@@ -326,9 +340,11 @@ window.document.querySelector('[href="make-it-red.ftl"]').remove();
 
 > 🔗 For more details about the Fluent localization system, see [Fluent documentation](https://projectfluent.org/dom-l10n-documentation/overview.html).
 
-#### 1.4.1.4 Preferences
+#### 1.4.1.4 Default Preferences
 
 Zotero uses the preferences system for storing user preferences. Plugins can provide default values for its preferences in the `prefs.js` file. It should be in the root directory of the plugin.
+
+Zotero provides a preferences system for storing user-specific settings. You can set default values for your plugin’s preferences using a `prefs.js` file. This file should be in the root directory of the plugin.
 
 Here is an example of a `prefs.js` file:
 
@@ -336,16 +352,18 @@ Here is an example of a `prefs.js` file:
 pref("extensions.make-it-red.intensity", 100);
 ```
 
+This file defines a default preference for the "Make It Red" plugin, setting the `intensity` of the color to `100` by default.
+
 These preferences will be read when plugins are installed or enabled and then on every startup.
 
 > 🔗 For more details about the preferences in Zotero, see [Preferences](https://www.zotero.org/support/preferences).
-> In [Persisted Settings](#23-persisted-settings-preferences) section, we'll cover more details about the preferences system.
+> In the [Persisted Settings: Preferences](#23-persisted-settings-preferences) section, we'll cover more details about the preferences system.
 
 ### 1.4.2 Plugin Update
 
-The update manifests are set up to demonstrate upgrading across all versions, but normally a plugin would point to a single update manifest that was updated as new versions were available.
+When you release new versions of your plugin, you can using a [Mozilla-style JSON update manifest](https://extensionworkshop.com/documentation/manage/updating-your-extension/ "https://extensionworkshop.com/documentation/manage/updating-your-extension/) to allow Zotero to check for new versions and install updates automatically.
 
-Zotero uses a [Mozilla-style JSON update manifest](https://extensionworkshop.com/documentation/manage/updating-your-extension/ "https://extensionworkshop.com/documentation/manage/updating-your-extension/").
+The update manifests are set up to demonstrate upgrading across all versions, but normally a plugin would point to a single update manifest that was updated as new versions were available.
 
 The update manifest JSON is not included in the plugin XPI file. It should be hosted online, and the URL should be specified in the plugin's `update_url` field in the `manifest.json` file of the plugin.
 
@@ -379,21 +397,22 @@ If you have questions about development or would like to discuss development wit
 
 # 2 Concepts
 
-In this section, we'll introduce some key concepts of Zotero plugin development, including the plugin lifecycle, Zotero data model, persisted settings, notifier events, privileged v.s unprivileged, and reader.
+This section introduces some core concepts in Zotero plugin development, such as the plugin lifecycle, data model, persisted settings, notifier events, and more.
 
 ## 2.1 Plugin LifeCycle
 
-Each plugin goes through a lifecycle, from being loaded to being unloaded. During this lifecycle, it runs a series of hooks that allow the plugin to perform actions at specific points in time.
+Every Zotero plugin follows a lifecycle, from installation to uninstallation. During this cycle, the plugin triggers a series of "hooks"—points in the plugin’s execution where certain actions can be taken.
 
-| Hook                 | Called when...                                                                   | Description                                                                                      |
-| -------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `install`            | Called when the plugin is manually installed or updated                          | Perform any necessary setup. Should not be used for actual tasks. The plugin is not yet running. |
-| `startup`            | Called when the plugin is loaded                                                 | Perform any necessary initialization. The plugin is now running.                                 |
-| `shutdown`           | Called when the plugin is unloaded                                               | Perform any necessary cleanup. The plugin will not be running.                                   |
-| `uninstall`          | Called when the plugin is manually uninstalled                                   | Perform any necessary cleanup. The plugin is no longer running.                                  |
-| `onMainWindowLoad`   | Called when the main Zotero main window is opened. May be called multiple times. | Perform any necessary initialization for the main window. The window is now open.                |
-| `onMainWindowUnload` | Called when the main Zotero main window is closed. May be called multiple times. | Perform any necessary cleanup for the main window. The window is now closed.                     |
+| Hook                 | Triggered when...                                                          | Description                                                                                        |
+| -------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `install`            | The plugin is installed or updated                                         | Set up initial configurations. This hook is only for setup tasks and the plugin isn't running yet. |
+| `startup`            | The plugin is being loaded                                                 | Initialize everything needed for the plugin to function.                                           |
+| `shutdown`           | The plugin is being unloaded                                               | Clean up resources before the plugin stops running.                                                |
+| `uninstall`          | The plugin is being uninstalled or replaced by a newer installation        | Perform cleanup for uninstallation.                                                                |
+| `onMainWindowLoad`   | The main Zotero window opens. Can happen multiple times during a session.  | Initialize UI changes for the main window.                                                         |
+| `onMainWindowUnload` | The main Zotero window closes. Can happen multiple times during a session. | Remove any window-specific changes.                                                                |
 
+The figure below illustrates the plugin lifecycle and the order in which the hooks are called.
 The figure below shows the lifecycle of a plugin and how the hooks are called.
 
 ![lifecycle](lifecycle.png)
@@ -412,19 +431,20 @@ The figure below shows the lifecycle of a plugin and how the hooks are called.
 
 ## 2.2 Zotero Data Model
 
-Zotero has a unified data model that represents all types of data in Zotero.
+Zotero organizes data into different types of "data objects," which are instances of classes that represent various types of information in Zotero.
 
-For developers, the data model is based on the concept of data objects, which are instances of classes that represent different types of data.
+For example:
 
-For example, a PDF file will be represented by an attachment `Item` object (instance of `Zotero.Item`), which usually belongs to a regular `Item` object (instance of `Zotero.Item`). This item can be in multiple `Collection` objects (instance of `Zotero.Collection`). Eventually, all these data objects are stored in a `Library` (instance of `Zotero.Library`).
+- A PDF file is represented by an attachment item object (an instance of `Zotero.Item`).
+- This attachment item might have a parent item, which is a regular item (an instance of `Zotero.Item`).
+- This regular item might belong to a collection (an instance of `Zotero.Collection`).
+- All data objects are stored within a library (an instance of `Zotero.Library`).
 
 This relation can be described as follows:
 
 ![Data Model Example](data-model-example.png)
 
-Each data class has a corresponding object for managing instances of the class. For example, `Zotero.Items` is the object for managing `Zotero.Item` instances. You can use these plural objects to create, retrieve, update, and delete the corresponding data objects.
-
-For example, you can get a `Zotero.Item` instance by its key using the object `Zotero.Items`:
+Each data class (like `Item` or `Collection`) has a corresponding "manager" object, which you can use to manage those instances. For example, to retrieve an `Item` object, you would use the `Zotero.Items` object:
 
 ```javascript
 let item = await Zotero.Items.getAsync(itemID);
@@ -432,9 +452,8 @@ let item = await Zotero.Items.getAsync(itemID);
 
 > ❓ What is the difference between `getAsync` and `get`?
 >
-> The `getAsync` method is an asynchronous method that returns a promise, while the `get` method is a synchronous method that returns the object directly. The asynchronous method ensures that the objects are loaded.
->
-> For most cases, it is recommended to use the asynchronous method.
+> - `getAsync`: Asynchronous, ensures that the objects are loaded and returns a promise (recommended in most cases).
+> - `get`: Synchronous, returns the object directly.
 
 The table below lists the **class** and its corresponding plural **object**:
 
@@ -457,7 +476,7 @@ All items and collections in Zotero belong to a **Library**. There are three typ
 - Group
 - Feed
 
-Each library has a unique `id`, which can be used to get the library instance.
+Each library has a unique `id`, which can be used to retrieve the library instance.
 
 The user library is the default library that contains all the items and collections created by the user. The user library ID can be retrieved using `Zotero.Libraries.userLibraryID`.
 
@@ -479,17 +498,20 @@ You can get all the libraries using `Zotero.Libraries.getAll()`.
 
 The `Zotero.DataObject` class is the base class for all data objects, including `Zotero.Collection`, `Zotero.Item`, and `Zotero.Search`.
 
-Each data object has a unique `key` (string) and an `id` (number).
+Each data object has two key properties:
+
+- `key`: A unique `string` identifier that stays the same across all devices in one library.
+- `id`: A unique `number` in the local database.
 
 > ❗️ Do not rely on the `id` for identifying the data object!
 >
-> The `key` is unique across all devices _(within one library)_, while the `id` is unique within the local database. In extreme cases, the `id` can be changed, but the `key` always remains the same.
+> The `key` is unique across all devices _(within a library)_, while the `id` is unique within the local database. In extreme cases, the `id` can be changed, but the `key` always remains the same.
 
 Other important shared properties and methods include:
 
 - `libraryID`: indicates which library the data object belongs to.
-- `objectType`: indicates the type of the data object. Can be `collection`, `item`, `search`, etc.
-- `version`: indicates the version of the data object. The version is incremented every time the data object is updated.
+- `objectType`: identifies the type of the data object. Can be `collection`, `item`, `search`, etc.
+- `version`: tracks the version of the data object, which increases with every update.
 - `deleted`: indicates whether the data object is trashed.
 - `save()` and `saveTx()`: saves the changes to the database.
 - `erase()` and `eraseTx()`: completely erase the data object from the database.
@@ -500,7 +522,7 @@ To create a new data object, you can use the `new` keyword. For example, to crea
 let item = new Zotero.Item();
 ```
 
-Each time you modify a data object, you should call the `save()` or `saveTx()` method to save the changes to the database. We'll cover this in more detail in the following sections.
+After making changes, always call `save()` or `saveTx()` to store them. We'll cover this in more detail in later sections.
 
 > ❓ What is the difference between `save()` and `saveTx()`?
 >
@@ -510,17 +532,17 @@ Each time you modify a data object, you should call the `save()` or `saveTx()` m
 >
 > For `erase()` and `eraseTx()`, the same principle applies.
 
-Besides the shared properties and methods, different types of data objects have their own properties and methods. The inheritance relationship is shown in the following UML diagram:
+Besides the shared properties and methods, different types of data objects have additional properties and methods, as shown in the figure below:
 
 ![uml](./uml_dataObject.png)
 
-We'll discuss the different types of data objects in the following sections.
+We'll cover the different types of data objects in the following sections.
 
 ### 2.2.3 Collection
 
-A **Collection** contains a group of items and other collections.
+A **Collection** contains items and can have sub-collections.
 
-Besides the inherited properties and methods from the `DataObject`, a collection object has the following notable properties:
+In addition to the inherited properties and methods from the `DataObject`, a collection object has the following key properties and methods:
 
 - `name`: the name of the collection.
 - `parent`: the parent collection of the collection. A top-level collection has a `null` parent.
@@ -531,7 +553,7 @@ Besides the inherited properties and methods from the `DataObject`, a collection
 - `addItem()`/`addItems()`: adds an item or items to the collection.
 - `removeItem()`/`removeItems()`: removes an item or items from the collection.
 
-The `Zotero.Collections` object is used to manage collection objects. Here are some examples of how to use the `Zotero.Collections` object:
+The `Zotero.Collections` object lets you manage collection objects. Here are some examples:
 
 ```javascript
 // Get all collections in the user library
@@ -553,7 +575,9 @@ collections = await Zotero.Collections.getCollectionsContainingItems(itemIDs);
 
 ### 2.2.4 Search
 
-The **Search** class is used to search for items in a library. It has the following properties and methods:
+The **Search** allows plugins to search for items in a Zotero library. Plugins can define specific search conditions, execute the search, and retrieve results based on the set conditions.
+
+Key properties and methods:
 
 - `addCondition(field, operator, value, required): number`: adds a search condition.
 - `updateCondition(searchConditionID, condition, operator, value, required): void`: updates a search condition.
@@ -698,7 +722,7 @@ type Conditions =
 
 ### 2.2.5 Item
 
-The `Item` is the most common data object in Zotero. Some important types of items include:
+The **Item** in Zotero represents different items in the Zotero library, like books, journal articles, or files. Here are some core concepts about items:
 
 - Regular Item: A bibliographic item, such as a book, article, or webpage.
 - Attachment Item: An attachment, such as a PDF file, a snapshot, or an image in the note.
@@ -709,7 +733,7 @@ The `Item` is the most common data object in Zotero. Some important types of ite
 >
 > A child item is an item that has a parent item, such as an attachment item with a parent regular item. A standalone item is an item that does not have a parent item. Attachment items may be either child items or standalone items.
 
-The `Item` class has the following important properties and methods:
+Key properties and methods include:
 
 - `itemType`: the type of the item. For example, `book`, `journalArticle`, `attachment`, `note`, etc.
 - `parentItem`: the parent item of the item. A standalone item has a `null` parent.
@@ -737,7 +761,7 @@ For Regular Items, the following additional properties and methods would be usef
 - `getField()`: gets the value of a field of the item.
 - `setField()`: sets the value of a field of the item.
 - `getAttachments()`: gets the attachments of the item.
-- `getBestAttachment()`: gets the best attachment of the item. Looks for attachment in the following order: oldest PDF attachment matching parent URL, oldest PDF attachment not matching parent URL, oldest non-PDF attachment matching parent URL, and old non-PDF attachment not matching parent URL.
+- `getBestAttachment()`: gets the best attachment of the item. Look for attachments in the following order: oldest PDF attachment matching parent URL, oldest PDF attachment not matching parent URL, oldest non-PDF attachment matching parent URL, and old non-PDF attachment not matching parent URL.
 - `getNotes()`: gets the notes of the item.
 - `numAttachments()`: gets the number of child attachments of the item.
 - `numNotes()`: gets the number of child notes of the item.
@@ -747,7 +771,7 @@ For Regular Items, the following additional properties and methods would be usef
 For Attachment Items, the following additional properties and methods would be useful:
 
 - `attachmentFilename`: the filename of the attachment.
-- `attachmentPath`: the raw attachment path string as stored in DB (e.g., "storage:foo.pdf", "attachments:foo/bar.pdf", "/Users/foo/Desktop/bar.pdf"). Can be set as absolute path or prefixed string ("storage:foo.pdf").
+- `attachmentPath`: the raw attachment path string as stored in DB (e.g., "storage:foo.pdf", "attachments:foo/bar.pdf", "/Users/foo/Desktop/bar.pdf"). Can be set as an absolute path or prefixed string ("storage:foo.pdf").
 - `attachmentContentType`: the content type of the attachment. For example, `application/pdf`, `text/html`, `application/epub+zip`, etc.
 - `attachmentText`: the text content of the attachment. Currently works on HTML, PDF, and plaintext attachments.
 - `isPDFAttachment()`: indicates whether the item is a PDF attachment.
@@ -770,24 +794,44 @@ For Annotation Items, the following additional properties and methods would be u
 - `annotationText`: the text content of the annotation.
 - `annotationComment`: the comment of the annotation.
 
+To create a new item, you can use the `new` keyword. For example, to create a new regular item:
+
+```javascript
+// Create a new book item
+let item = new Zotero.Item("book");
+
+// Set the title and date fields
+item.setField("title", "Much Ado About Nothing");
+item.setField("date", "1599");
+
+// Add a tag
+item.addTag("Shakespeare");
+
+// Save the item to the database
+await item.saveTx();
+```
+
+After making changes, always call `save()` or `saveTx()` to store them.
+
 To trash an item, you can use `Zotero.Items.trash()`/`Zotero.Items.trashTx()`.
 
 ```javascript
+// Get the item by ID
 let item = await Zotero.Items.getAsync(itemID);
+
+// Trash the item
 await Zotero.Items.trashTx(item);
 ```
 
 ## 2.3 Persisted Settings: Preferences
 
-Zotero provides a set of APIs for managing persisted settings, which are stored in the Zotero data directory's `prefs.js` file.
+Zotero allows plugins to store settings that persist across sessions. These preferences are stored as key-value pairs in Zotero’s `prefs.js` file, located in the data directory. They are available throughout the plugin but do not sync across devices.
 
-These settings will be persisted across Zotero sessions and are available to all parts of the plugin. However, the settings are not synced across devices.
+A preference is a key-value pair. The typical format for a preference key is `extensions.myplugin.mykey`, where `myplugin` is your plugin’s unique identifier, and `mykey` is the setting’s name. Values can be strings, numbers, or booleans.
 
-A preference is a key-value pair. The key is a string, usually in the format of `extensions.myplugin.mykey`, where `myplugin` is the plugin unique identifier and `mykey` is the key of the preference. The value can be a string, number, or boolean.
+As mentioned in the [Plugin Structure/Preferences](#1414-preferences) section, the plugin can provide default values for its preferences in its own `prefs.js` file.
 
-As we mentioned in the [Plugin Structure/Preferences](#1414-preferences) section, plugins can provide default values for its preferences in its own `prefs.js` file.
-
-The `Zotero.Prefs` object is used to manage the persisted settings. It has the following important methods:
+Use the `Zotero.Prefs` object to interact with preferences. Key methods include:
 
 - `get(key, global)`: gets the value of a preference.
 - `set(key, value, global)`: sets the value of a preference.
@@ -804,10 +848,14 @@ let value = Zotero.Prefs.get("extensions.myplugin.mykey", true);
 Zotero.Prefs.set("extensions.myplugin.mykey", "myvalue", true);
 // Clear the value of a preference
 Zotero.Prefs.clear("extensions.myplugin.mykey", true);
-// For Zotero's built-in preferences, the key should be in the format of "extensions.zotero.zoterokey".
-// The call can be simplified as:
+```
+
+The `global` argument simplifies access to Zotero’s built-in preference keys. When `global` is not set or `false`, Zotero automatically prefixes the key with `"extensions.zotero."`, so you don’t need to type the full key path.
+
+```javascript
+// Using the simplified format for a built-in Zotero preference:
 value = Zotero.Prefs.get("zoterokey");
-// Equivalent to:
+// This is equivalent to the full format:
 value = Zotero.Prefs.get("extensions.zotero.zoterokey", true);
 ```
 
@@ -831,15 +879,15 @@ To unregister the observer:
 Zotero.Prefs.unregisterObserver(observerID);
 ```
 
-> If you want to store complex data, you can serialize (`JSON.stringify`) and deserialize (`JSON.parse`) the data.
+> **Tip**: For complex data, use `JSON.stringify` and `JSON.parse` to store and retrieve serialized values.
 
 ## 2.4 Notification System
 
-Zotero has a built-in notification system that allows plugins to be notified when a change is made in the data layer — for example, when an item is added to the library. Within Zotero itself, this is used mostly to update the UI when items change.
+Zotero’s notification system allows plugins to respond when certain events occur, such as when items are added, modified, or removed from the library. This system is used internally to update the user interface when data changes.
 
-The notification system is based on the observer pattern. Plugins can register observers for specific events and receive notifications when the events occur.
+The notification system uses an "observer pattern." An observer is a function that waits for a specific event to happen, and then runs in response. Plugins can register observers to listen for specific events.
 
-The `Zotero.Notifier` object is used to manage the notification system. It has the following important methods:
+The `Zotero.Notifier` object lets you register and manage observers. Key methods include:
 
 - `registerObserver(ref, types, id, priority): string`: registers an observer for an event. The `ref` is an object (`{ notify: (event, type, ids, extraData) => void }`) that implements the `notify` method. The `types` is an array of event types. The `id` is a unique identifier for debug output. The `priority` is the priority of the observer.
 - `unregisterObserver(observerID)`: unregisters an observer.
@@ -915,21 +963,21 @@ Zotero.Notifier.unregisterObserver(observerID);
 
 ## 2.5 Privileged v.s Unprivileged: Browser Window, HTML Window, and Sandbox
 
-In Zotero, there are different types of scopes for running code. Different scopes have different privileges and access to different APIs.
+In Zotero, different scopes exist for running code, with each scope having distinct privileges and access to specific APIs.
 
-> ❗️ Be aware of the scope when running code. Some APIs are only available in specific scopes.
+> ❗️ Be mindful of scope when running code, as some APIs are only accessible in specific scopes.
 >
-> Zotero is NOT a NodeJS environment. Don't try to use NodeJS APIs in the plugin!
+> Zotero is NOT a NodeJS environment; plugins cannot use NodeJS APIs or dependencies designed for NodeJS.
 
-**Privileged v.s Unprivileged**
+**Privileged vs. Unprivileged**
 
-Similar to Firefox, Zotero inherits the same security model. Different levels of privileges have different security principals and different access.
+Similar to Firefox, Zotero inherits a layered security model, with different privilege levels that have specific security principals and API access.
 
-> 🔗 For more details about security model, see [Script Security](https://firefox-source-docs.mozilla.org/dom/scriptSecurity/index.html#script-security)
+> 🔗 For more details about the security model, see [Script Security](https://firefox-source-docs.mozilla.org/dom/scriptSecurity/index.html#script-security)
 
-For security reasons, when you try to access an object in a less privileged scope from a privileged scope , e.g. access content in an HTML window from the plugin's sandbox scope, sometimes you don't get the expected value. This is called the Xray vision.
+For security reasons, accessing an object in a lower-privileged scope from a higher-privileged one (e.g., content in an HTML window from the plugin's sandbox) may yield unexpected results, due to "Xray vision."
 
-For example, if you try to access the attribute attached to the `window` object in HTML window, you may get an undefined value.
+For example, if you try to access the attribute attached to the `window` object in the HTML window, you may get an undefined value.
 
 ```javascript
 // In the HTML window
@@ -950,45 +998,47 @@ Zotero.debug(myAttribute); // { value: 42 }
 
 **Browser Window**
 
-XHTML window that runs in privileged mode. It has full access to Zotero APIs and other browser APIs. It is used for the most of the Zotero windows, such as the main window and the preferences window.
+An XHTML window that runs in privileged mode, with full access to Zotero and browser APIs. In Zotero, it's used for most of the Zotero windows, like the main and preferences windows. Key characteristics:
 
-The browser window scope is similar to a regular HTML scope, but with additional privileges and some differences in the DOM structure and global variables. Some important differences include:
+- Limited access to standard HTML elements (e.g., `document.body` may not exist in some XHTML windows).
+- Access to privileged APIs (e.g., `ChromeUtils`, `Services`, `Zotero`).
 
-- Some HTML elements are possibly not available, e.g. `document.body` does not exist in the main window. This is the major cause that some third-party libraries designed for the web cannot be used in the browser window.
-- Access to privileged APIs, e.g. `ChromeUtils`, `Services`, `Zotero`, etc.
+> ❗️ Missing global variables is the major cause that some third-party libraries designed for the web cannot work in the browser window.
 
 **HTML Window**
 
-HTML window that runs in unprivileged mode. It has limited/no access to Zotero APIs and no access to browser APIs. It is used for some iframe windows, such as the note editor and the reader.
+An unprivileged HTML window with limited/no access to Zotero APIs or browser APIs. In Zotero, it's mainly used in iframes like the note editor and reader.
 
-If the code is in an HTML iframe, is is not be able to access privileged APIs directly. It should communicate with the parent window using `window.postMessage()`.
+In an HTML iframe, use `window.postMessage()` to communicate with the parent window when accessing privileged APIs.
 
 **Sandbox**
 
-A secure environment that can have different privileges. It can be used to run untrusted code, such as the code from the web. The plugin runs in a sandbox environment in privileged mode.
+A secure environment that can run code with different privilege levels. Plugins operate in a privileged sandbox, similar to a worker scope but with privileged API access. Key characteristics:
 
-The plugin's sandbox scope is similar to the worker scope, but with additional privileges and access to Zotero APIs. Some important differences include:
-
-- Access to privileged APIs.
+- Can have access to privileged APIs.
 - Global variables, such as `Zotero`, `ChromeUtils`, `Services`, `ChromeWorker`, `Localization`, `IOUtils`, `PathUtils`, etc.
 
-> ❓ What is the difference between the main window scope and the plugin's sandbox scope?
+> ❓ **Differences between browser window and sandbox scopes**:
 >
-> - Both scopes have access to privileged APIs.
-> - The main window scope has window-specific APIs, such as `window` and `document`.
-> - Global variables are different. For example, `Zotero` is available in both scopes, but `ZoteroPane` is only available in the main window scope, as it is related to the DOM of the main window.
-> - The main window scope is recycled when the window is closed, while the plugin's sandbox scope is persistent until the plugin is unloaded.
+> - Both can access privileged APIs.
+> - The main window has window-specific APIs or variables (`window`, `document`).
+> - Global variables are different. For example, `Zotero` is available in both scopes, but `ZoteroPane` is only available in the main window scope, as it is dependent on the DOM of the main window.
+> - The main window scope is recycled on window close, while the sandbox remains until the plugin is unloaded.
 
-## 2.6 Resource registry
+## 2.6 Resource Registry
 
-In most cases, you can directly access the resources in the plugin's directory by using the relative path with `rootURI`, e.g., `rootURI + 'style.css'`.
+To access resources in your plugin's directory, you can often use a relative path with `rootURI`, like this:
+
+```javascript
+let stylesheetPath = rootURI + "style.css";
+```
 
 However, for some cases, e.g. loading a script from the plugin's directory in the main window, you need a `chrome://` URI.
 
 Here is an example of registering the `chrome/content` directory of the plugin as `chrome://myplugin/content` resource:
 
 ```javascript
-// In the plugin's code
+// In the plugin's bootstrap.js
 
 var chromeHandle;
 
@@ -1019,7 +1069,7 @@ function shutdown() {
 }
 ```
 
-Now, you can use the `chrome://myplugin/content/` URI to access the resources in the `chrome/content` directory. For example, the URI of file `${pluginRoot}/chrome/content/script.js` would be `chrome://myplugin/content/script.js`.
+You can now access resources using the `chrome://myplugin/content/` URI. For example, the file at `${pluginRoot}/chrome/content/script.js` can be accessed as `chrome://myplugin/content/script.js`.
 
 # 3 UX Guidelines
 
@@ -1041,13 +1091,11 @@ Now, you can use the `chrome://myplugin/content/` URI to access the resources in
 
 # 4 Best Practice
 
-In this section, we'll introduce some best practices for achieving common tasks in Zotero plugin development.
-
-All the code examples are supposed to run in the plugin's sandbox environment.
+In this section, we’ll outline some best practices for handling common tasks in Zotero plugin development. All code examples are intended to run in the plugin’s sandbox environment unless stated otherwise.
 
 ## 4.1 Adding Custom Column to Item Tree
 
-The item tree displays the items in the library pane. By default, the item tree has columns for the item metadata, such as title, creator, date, etc. You can customize the item tree by adding custom columns to display additional information.
+The item tree displays items in the Zotero library pane. By default, it includes columns for metadata like title, creator, and date. Plugins can add custom columns to display additional data.
 
 <!-- TODO: update API -->
 
@@ -1082,8 +1130,8 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
   sortReverse: true, // sort by increasing order
   flex: 0, // don't take up all available space
   width: 100, // assign fixed width in pixels
-  fixedWidth: true, // don't allow user to resize
-  staticWidth: true, // don't allow column to be resized when the tree is resized
+  fixedWidth: true, // don't allow the user to resize
+  staticWidth: true, // don't allow the column to be resized when the tree is resized
   minWidth: 50, // minimum width in pixels
   iconPath: "chrome://zotero/skin/tick.png", // icon to show in the column header
   htmlLabel: '<span style="color: red;">reversed title</span>', // use HTML in the label. This will override the label and iconPath property
@@ -1111,15 +1159,13 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
 });
 ```
 
-For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/itemTreeManager.js).
+For more information about the API, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/itemTreeManager.js).
 
 ## 4.2 Adding Custom Section to Item Pane
 
-The item pane displays the detailed information of the currently selected or viewed item. You can customize the item pane by adding custom sections to display additional information.
+The item pane displays detailed information about selected items in Zotero. Plugins can add custom sections to show additional data.
 
-To add a custom section to the item pane, you can use the `Zotero.ItemPaneManager.registerSection` method in the `startup` hook. The custom sections can be automatically unregistered when the plugin is unloaded.
-
-The example below shows how to register a custom section with the item details (e.g., `id` and `editable`) displayed. `paneID`, `pluginID`, `header`, and `sidenav` are required.
+To add a custom section, use `Zotero.ItemPaneManager.registerSection` in your plugin’s `startup` hook. The custom sections can be automatically unregistered when the plugin is unloaded.
 
 ```javascript
 const registeredID = Zotero.ItemPaneManager.registerSection({
@@ -1143,15 +1189,15 @@ const registeredID = Zotero.ItemPaneManager.registerSection({
 });
 ```
 
-To remove the custom section:
+To unregister the custom section:
 
 ```javascript
 Zotero.ItemPaneManager.unregisterSection(registeredID);
 ```
 
-More advanced options are documented in the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/itemPaneManager.js).
+For more advanced options, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/itemPaneManager.js).
 
-Explanations of the hooks of item pane section:
+Explanations of the hooks of the item pane section:
 
 - `onInit`: Called when the section is initialized and attached to the DOM. You can set up notifier observers here. The UI is not rendered yet, so you should not update the UI.
 - `onItemChange`: Called when the target item changes. This is useful for enabling/disabling the section based on the item. If the section is not enabled, the section will not be rendered. You should not update the UI.
@@ -1160,13 +1206,17 @@ Explanations of the hooks of item pane section:
 - `onToggle`: Called when the section is toggled. You can use this hook to refresh the content of the section when it is shown.
 - `onDestroy`: Called when the section is destroyed. You should clean up any resources here, such as removing observers.
 
-Only `onInit` and `onDestroy` will always be called. The other hooks will be called when Zotero thinks it is necessary. For example, `onItemChange` will be called when the item changes, but that does not mean the section will be rendered and `onRender` might not be called. Also, calling `onRender` does not guarantee that the `onAsyncRender` will be called.
+Only `onInit` and `onDestroy` will always be called. The other hooks will be called when Zotero thinks it is necessary. For example, `onItemChange` will be called when the item changes, but that does not mean the section will be rendered, and `onRender` might not be called. Also, calling `onRender` does not guarantee that the `onAsyncRender` will be called.
 
 ## 4.3 Adding Pane to Preferences Window
 
-The preferences window is used to configure the settings of Zotero. Plugins should add their own panes to the preferences window for users to configure the plugin settings.
+The preferences window allows users to configure settings in Zotero. Plugins should add their own panes to this window so users can easily adjust the plugin's options.
 
-To add a pane to the preferences window, you can use the `Zotero.PreferencePanes.register` method in the `startup` hook. The registered pane will be automatically unregistered when the plugin is unloaded. For more advanced options, you can refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/preferencePanes.js).
+To add a pane, use the `Zotero.PreferencePanes.register` method in the `startup` hook. When the plugin is unloaded, the pane will be automatically removed.
+
+The registered pane will be automatically unregistered when the plugin is unloaded.
+
+For advanced customization options, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/preferencePanes.js).
 
 ```javascript
 Zotero.PreferencePanes.register({
@@ -1177,7 +1227,7 @@ Zotero.PreferencePanes.register({
 });
 ```
 
-The pane's `src` should point to a file containing a XUL/XHTML fragment. Fragments cannot have a `<!DOCTYPE`. The default namespace is XUL, and HTML tags are accessible under `html:`. A simple pane could look like:
+The `src` property should point to a file containing an XHTML fragment. Note that fragments cannot include a `<!DOCTYPE>` declaration. The default namespace is XUL and HTML tags can be accessed using `html:`. Below is a simple example:
 
 ```html
 <linkset>
@@ -1189,34 +1239,34 @@ The pane's `src` should point to a file containing a XUL/XHTML fragment. Fragm
 </groupbox>
 ```
 
-Organizing your pane as a sequence of top-level `<groupbox>`es ' will optimize it for the new preferences search mechanism. By default, all text in the DOM is searchable. If you want to manually add keywords to an element (for example, a button that opens a dialog), set its `data-search-strings-raw` property to a comma-separated list.
+Organizing your pane as a sequence of top-level `<groupbox>`es ' will optimize it for the new preferences search mechanism. By default, all text in the DOM is searchable. To add custom keywords to an element (such as a button that opens a dialog), set its `data-search-strings-raw` attribute to a comma-separated list of keywords.
 
-Note that all `class`, `id`, and `data-l10n-id` in the preference pane should be namespaced to avoid conflicting between plugins.
+To avoid conflicts with other plugins, make sure all `class`, `id`, and `data-l10n-id` attributes in your preference pane are properly namespaced.
 
 ## 4.4 Menu
 
 ### 4.4.1 Menu Bar
 
-Zotero's main window has a menu bar that contains various menus, such as `File` and `Edit`. You can add your own menu items to the menu bar. Besides the main menu bar, you can also add menu items to the context menu.
+Zotero's main window has a menu bar containing various menus, such as `File`, `Edit`, and `Tools`. Plugins can add their own menu items to this menu bar to offer additional functionality to users.
 
-The menu bar is defined by the `menubar#main-menubar` element in `zoteroPane.xhtml`, i.e., the main window's XHTML file.
+The main menu bar is defined by the `menubar#main-menubar` element in `zoteroPane.xhtml`, which is the XHTML file for Zotero's main window.
 
-To add a menu item to the menu bar, you can insert menu item or menu popup elements in the `onMainWindowLoad` hook.
+To add a menu item to the menu bar, plugins can insert menu items or menu popup elements in the `onMainWindowLoad` hook.
 
-For example, to add a menu item to the `Tools` menu:
+Here’s an example of how to add a new menu item to the `Tools` menu:
 
 ```javascript
-// In the plugin's code
+// In the plugin's bootstrap.js
 
 function onMainWindowLoad({ window }) {
   // ...
 
   let document = window.document;
 
-  // Insert FTL file to the document
+  // Insert FTL file into the document
   window.MozXULElement.insertFTLIfNeeded("myplugin-menu.ftl");
   // Get the Tools menu popup
-  let toolsMenu = document.querySelector("#menu_ToolsPopup");
+  let toolsMenuPopup = document.querySelector("#menu_ToolsPopup");
   // Create a new menu item
   let menuItem = document.createXULElement("menuitem");
   // Set the label of the menu item
@@ -1226,13 +1276,13 @@ function onMainWindowLoad({ window }) {
     window.alert("My Menu Item is clicked");
   });
   // Insert the menu item to the Tools menu
-  toolsMenu.appendChild(menuItem);
+  toolsMenuPopup.appendChild(menuItem);
 
   // ...
 }
 ```
 
-In the `myplugin-menu.ftl` file:
+In the `myplugin-menu.ftl` file, which is used for localization, add the following:
 
 ```ftl
 myplugin-menu-item =
@@ -1250,9 +1300,45 @@ The full list of the query selectors for the menu bar is as follows:
 
 ### 4.4.2 Library Context Menu
 
-The library context menu is the context menu that appears when you right-click on an item/collection in the library pane.
+The library context menu appears when you right-click on an item or collection in the library pane. Plugins can add their own options to this menu, enabling custom actions that apply specifically to items or collections.
 
-Similar to the menu bar, you can add menu items to the library context menu by inserting menu item or menu popup elements in the `onMainWindowLoad` hook.
+Similar to adding items to the menu bar, plugins can add menu items to the library context menu by inserting menu items or popups in the `onMainWindowLoad` function, which is called when Zotero's main window is loaded.
+
+Below is an example of how to add a new menu item to the library item context menu:
+
+```javascript
+// In the plugin's bootstrap.js
+
+function onMainWindowLoad({ window }) {
+  let document = window.document;
+
+  // Get the item context menu popup
+  let itemMenuPopup = document.querySelector("#zotero-itemmenu");
+
+  // Create a new menu item
+  let menuItem = document.createXULElement("menuitem");
+
+  // Set the label of the menu item
+  menuItem.setAttribute("label", "Custom Item Action");
+
+  // Add a click event listener to handle the action
+  menuItem.addEventListener("command", () => {
+    window.alert("Custom Item Action clicked!");
+  });
+
+  // Insert the menu item into the item context menu
+  itemMenuPopup.appendChild(menuItem);
+
+  // Only show the menu item for regular items
+  itemMenuPopup.addEventListener("popupshowing", () => {
+    menuItem.hidden = Zotero.getActiveZoteroPane()
+      .getSelectedItems()
+      .some((item) => {
+        return !item.isRegularItem();
+      });
+  });
+}
+```
 
 The full list of the query selectors for the library context menu is as follows:
 
@@ -1261,13 +1347,11 @@ The full list of the query selectors for the library context menu is as follows:
 
 ### 4.4.3 Reader Context Menu
 
-The reader context menu is the context menu that appears when you right-click on the reader pane.
+The reader context menu appears when you right-click on the reader. This menu can be customized to provide additional functionality, such as adding actions for annotations or specific text selections within documents.
 
-Unlike the menu bar and the library context menu, the reader context menu is not defined in the main window's XHTML file. Instead, it is dynamically created by the reader instance.
+Unlike the menu bar and library context menus, the reader context menu is not defined in the main window's XHTML file. Instead, it is dynamically created by the reader instance. To add menu items to this context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` function. The event listener you register will automatically be removed when the plugin is unloaded.
 
-To add menu items to the reader context menu, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. The registered event listener will be automatically unregistered when the plugin is unloaded.
-
-For example, to add a menu item to the reader annotation context menu:
+Below is an example of how to add a menu item to the reader annotation context menu:
 
 ```javascript
 // In the plugin's code
@@ -1297,7 +1381,7 @@ function startup() {
 }
 ```
 
-The full list of the supported types for the `registerEventListener` method is as follows:
+The following context menu types are supported for the `registerEventListener` method:
 
 - `createColorContextMenu`: triggered when the top toolbar's color picker menu is created
 - `createViewContextMenu`: triggered when the viewer's right-click menu is created
@@ -1305,22 +1389,25 @@ The full list of the supported types for the `registerEventListener` method is a
 - `createThumbnailContextMenu`: triggered when the left sidebar's thumbnail right-click menu is created
 - `createSelectorContextMenu`: triggered when the left sidebar's tag selector right-click menu is created
 
-For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
+For more information about the API, refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
 
 ## 4.5 Injecting to Reader UI
 
-The reader UI is inside an iframe. To inject elements to the reader UI, you can use the `Zotero.Reader.registerEventListener` method in the `startup` hook. The registered event listener will be automatically unregistered when the plugin is unloaded.
+The reader interface in Zotero is inside an iframe. This means that directly injecting elements into the reader UI is not possible. Plugins can add custom elements to the reader UI using the `Zotero.Reader.registerEventListener` method in the `startup` function. The event listener you register will automatically be removed when the plugin is unloaded.
 
-For example, to add an element to display the translation of the selected text in the reader's text selection popup:
+For example, plugins can add an element to display the translation of the selected text in the reader's text selection popup:
 
 ```javascript
 Zotero.Reader.registerEventListener(
   "renderTextSelectionPopup",
   (event) => {
     let { reader, doc, params, append } = event;
+    // Create a custom element to display the translated text
     let container = doc.createElement("div");
     container.append("Loading…");
+    // Append the custom element to the text selection popup
     append(container);
+    // Use a timeout to simulate an asynchronous operation
     setTimeout(
       () =>
         container.replaceChildren("Translated text: " + params.annotation.text),
@@ -1331,13 +1418,13 @@ Zotero.Reader.registerEventListener(
 );
 ```
 
-The full list of the supported types for the `registerEventListener` method is as follows:
+The following injecting UI types are supported for the `registerEventListener` method:
 
 - `renderTextSelectionPopup`: triggered when the selection popup is rendered
 - `renderSidebarAnnotationHeader`: triggered when the left sidebar's annotation header line is rendered
 - `renderToolbar`: triggered when the reader's top toolbar is rendered
 
-For more information about the API, you can refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
+For more information about the API, refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
 
 ## 4.6 HTTP Request
 
@@ -1386,7 +1473,7 @@ Zotero.debug(req.response); // object
 
 ## 4.7 File I/O
 
-Zotero provides a set of APIs for file I/O operations in `Zotero.File`. You can also use [IOUtils](https://firefox-source-docs.mozilla.org/dom/ioutils_migration.html) and [PathUtils](https://searchfox.org/mozilla-esr115/source/dom/chrome-webidl/PathUtils.webidl) for the operations that are not provided by `Zotero.File`.
+Zotero provides a set of APIs for file I/O operations in `Zotero.File`. Plugins can also use [IOUtils](https://firefox-source-docs.mozilla.org/dom/ioutils_migration.html) and [PathUtils](https://searchfox.org/mozilla-esr115/source/dom/chrome-webidl/PathUtils.webidl) for the operations that are not provided by `Zotero.File`.
 
 ### 4.7.1 Reading file
 
@@ -1499,7 +1586,7 @@ if (rv == fp.returnOK || rv == fp.returnReplace) {
 
 ## 4.8 Heavy Task with Web Worker
 
-For heavy tasks that may block the main thread, you can use a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to run the task in the background in a separate thread.
+For heavy tasks that may block the main thread, plugins can use a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to run the task in the background in a separate thread.
 
 ### 4.8.1 Don't Block the Main Thread
 
@@ -1859,7 +1946,7 @@ if (item.isRegularItem()) {
 ```javascript
 let collection = ZoteroPane.getSelectedCollection();
 let items = collection.getChildItems();
-// or you can obtain an array of itemIDs instead:
+// or you can retrieve an array of itemIDs instead:
 let itemIDs = collection.getChildItems(true);
 ```
 
@@ -1949,7 +2036,7 @@ Once the search conditions have been set up, then it's time to execute the resul
 let itemIDs = await s.search();
 ```
 
-This returns the item ids in the search as an array. The next thing to do is to get the Zotero items for the array of IDs:
+This returns the item IDs in the search as an array. The next thing to do is to get the Zotero items for the array of IDs:
 
 ```javascript
 let items = await Zotero.Items.getAsync(itemIDs);
@@ -1985,15 +2072,18 @@ if (item && !item.isNote()) {
 
 ## 4.13 Shutting Down
 
-When the plugin is shut down, you should clean up any resources that were allocated during the plugin's lifetime. This includes unregistering any event listeners, closing any open connections, and releasing any resources that were allocated.
+When a plugin is shut down, it is important to clean up resources allocated during its lifetime to prevent memory leaks. This includes unregistering event listeners, closing open connections, and releasing any other allocated resources.
 
-The list of tasks to perform in the `shutdown` hook includes:
+The following tasks should be completed in the `shutdown` hook:
 
-- Close any windows, tabs, or popups that were opened by the plugin.
-- Remove any DOM elements, including styles, scripts, and locales that were added by the plugin.
-- Remove references to any window or objects within it, including event listeners and any references to the DOM elements.
-- Remove any attributes or properties that were added to the window object or the Zotero object.
-- Close any open connections, such as database connections or network connections.
-- Stop any running tasks, such as timers or web workers.
+1. **Close Open Windows and Popups**
+   - Close any windows, tabs, or popups that were opened by the plugin.
+2. **Global Object and UI Cleanup**
+   - Remove any DOM elements, including styles, scripts, and locales that were added by the plugin.
+   - Remove references to any windows or objects within it, including event listeners and any references to DOM elements.
+   - Remove any attributes or properties that were added to the main window or the Zotero object.
+3. **Connection and Task Cleanup**
+   - Close any open connections, such as database connections or network connections.
+   - Stop any running tasks, such as timers or web workers.
 
-For the plugin APIs provided by Zotero, you do not need to explicitly do anything in the `shutdown` hook. The plugin APIs will automatically clean up the resources when the plugin is unloaded.
+For Zotero-provided plugin APIs, explicit shutdown tasks are not required, as these APIs will automatically handle resource cleanup when the plugin is unloaded.
