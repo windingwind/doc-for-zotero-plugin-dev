@@ -180,6 +180,10 @@ Here’s a sample `manifest.json`:
   "version": "2.0",
   "description": "Makes everything red",
   "homepage_url": "https://github.com/zotero/make-it-red",
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  },
   "applications": {
     "zotero": {
       "id": "make-it-red@example.com",
@@ -198,6 +202,19 @@ Explanation of the fields in the `manifest.json` file are as follows. The fields
 - `version`\*: The version of the plugin. This follows [this](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version) version format.
 - `description`: A brief description of the plugin. It will be shown in the _Plugin Manager_.
 - `homepage_url`: The URL of the plugin's homepage. It will be shown in the _Plugin Manager_.
+- `icons`: The icons for the plugin. See [icons]().
+
+> 💡 About plugin icons
+>
+> For the best scalability and seamless theme integration, use the **SVG format** for your plugin icons. To ensure your icons adapt to Zotero's light and dark themes, include the attributes `fill="context-fill"` and `stroke="context-stroke"` in your SVG where appropriate. These attributes allow the icon's fill and stroke colors to inherit the foreground color of the current theme dynamically.
+>
+> **Best Practices**:
+>
+> - Test your icons in both light and dark modes to ensure they are visually clear and consistent.
+> - Avoid hardcoding colors like black and white in your SVG to maintain adaptability.
+>
+> 🔗 For more details about working with SVGs, refer to [Mozilla - manifest.json/icons](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/icons).
+
 - `applications/zotero`\*: The application-specific information. It is based on [browser_specific_settings.gecko](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings) and must be present for Zotero to install your plugin.
   - `id`\*: The unique identifier for the plugin. It should be in the format `myplugin@mydomain.org`.
   - `update_url`: The URL of the update manifest. See also [Plugin Update](#142-plugin-update).
