@@ -1090,22 +1090,6 @@ You can now access resources using the `chrome://myplugin/content/` URI. For exa
 
 # 3 UX Guidelines
 
-## 3.1 Zotero Pane
-
-### 3.1.1 Collections Pane
-
-### 3.1.2 Items Pane
-
-### 3.1.3 Item Pane and Context Pane
-
-## 3.2 Tabs
-
-## 3.3 Reader
-
-## 3.3 Note Editor
-
-## 3.4 Dark Mode
-
 # 4 Best Practice
 
 In this section, we’ll outline some best practices for handling common tasks in Zotero plugin development. All code examples are intended to run in the plugin’s sandbox environment unless stated otherwise.
