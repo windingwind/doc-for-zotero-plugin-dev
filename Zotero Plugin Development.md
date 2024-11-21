@@ -73,7 +73,7 @@ To install the plugin:
 
 After the plugin is successfully installed, it will be listed in the _Plugins Manager_. You can verify that the _Make-It-Red_ plugin works by checking the text in the items and library list—if it turns red, the installation was successful.
 
-![Run Plugin Result](run-plugin.png)
+![Run Plugin Result](./attachments/run-plugin.png)
 
 #### 1.3.2.2 Loading from Source Code
 
@@ -114,7 +114,7 @@ To access the window:
 > Select an item in the library, then run `ZoteroPane.getSelectedItems()[0]` in the _Run JavaScript_ window.
 > This will return the first selected item in your library.
 
-![Run JS window](run-js.png)
+![Run JS window](./attachments/run-js.png)
 
 > 🔗 For more details about the _Run JavaScript_ window, see [Running Ad Hoc JavaScript in Zotero](https://www.zotero.org/support/dev/client_coding/javascript_api#running_ad_hoc_javascript_in_zotero).
 
@@ -128,7 +128,7 @@ To log debug messages, use the `Zotero.debug` function. You can view the debug o
 >
 > In the _Run JavaScript_ window, run the code `Zotero.debug("Hello, World!")`. Then check the debug output window to see the message.
 
-![alt text](debug-output.png)
+![alt text](./attachments/debug-output.png)
 
 > 🔗 For more details about using the debug output, see [Debug Output Logging](https://www.zotero.org/support/debug_output#zotero).
 
@@ -153,7 +153,7 @@ Zotero beta builds include the Firefox 115 devtools. To start a beta build with 
 
 If you’re running Zotero from source code, use the `-d` flag with the  [build_and_run script](https://www.zotero.org/support/dev/client_coding/building_the_desktop_app#helper_script "dev:client_coding:building_the_desktop_app"), which will rebuild Zotero with devtools included and launch it with the `-jsdebugger` flag.
 
-![DevTools](devtools.png)
+![DevTools](./attachments/devtools.png)
 
 > 💡 Try this out!
 >
@@ -432,7 +432,7 @@ Every Zotero plugin follows a lifecycle, from installation to uninstallation. Du
 The figure below illustrates the plugin lifecycle and the order in which the hooks are called.
 The figure below shows the lifecycle of a plugin and how the hooks are called.
 
-![lifecycle](lifecycle.png)
+![lifecycle](./attachments/lifecycle.png)
 
 > 💡 Try this out!
 >
@@ -459,7 +459,7 @@ For example:
 
 This relation can be described as follows:
 
-![Data Model Example](data-model-example.png)
+![Data Model Example](./attachments/data-model-example.png)
 
 Each data class (like `Item` or `Collection`) has a corresponding "manager" object, which you can use to manage those instances. For example, to retrieve an `Item` object, you would use the `Zotero.Items` object:
 
@@ -551,7 +551,7 @@ After making changes, always call `save()` or `saveTx()` to store them. We'll co
 
 Besides the shared properties and methods, different types of data objects have additional properties and methods, as shown in the figure below:
 
-![uml](./uml_dataObject.png)
+![uml](./attachments/uml_dataObject.png)
 
 We'll cover the different types of data objects in the following sections.
 
@@ -1639,7 +1639,7 @@ let title = item.getField("title");
 
 If you run it in the main thread, it will block the UI and make the Zotero window unresponsive.
 
-![Run heavy task in main thread](worker-main.png)
+![Run heavy task in main thread](./attachments/worker-main.png)
 
 > ❗️ Be aware of the performance of the code. Do not run heavy tasks in the main thread. Freezing the UI is a bad user experience.
 
@@ -1647,7 +1647,7 @@ If you run it in the main thread, it will block the UI and make the Zotero windo
 
 You may want to directly run the full code in the worker. However, the worker does not have access to the privileged APIs. It cannot access the item data directly.
 
-![Run heavy task in worker thread](worker-sub.png)
+![Run heavy task in worker thread](./attachments/worker-sub.png)
 
 To run the task in a web worker, you can create a new worker and run the task in the worker.
 
@@ -1740,7 +1740,7 @@ Zotero.debug(`Time: ${time} ms`);
 
 The worker will run the task in the background and send the result back to the main thread. The main thread will receive the result and print it. The UI will not be blocked during the task.
 
-![Run heavy task using web worker](worker-oneway.png)
+![Run heavy task using web worker](./attachments/worker-oneway.png)
 
 ### 4.8.3 Variant: Accessing Zotero APIs in the Worker
 
@@ -1861,7 +1861,7 @@ Zotero.debug(`Time: ${time} ms`);
 
 When you run the code, the worker will receive the item ID, request the item title from the main thread, run the heavy task, and send the result back to the main thread.
 
-![Run variant heavy task in web worker](worker-twoway.png)
+![Run variant heavy task in web worker](./attachments/worker-twoway.png)
 
 ## 4.9 Item Operations
 
