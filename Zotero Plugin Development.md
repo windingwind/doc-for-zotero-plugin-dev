@@ -189,7 +189,7 @@ Here’s a sample `manifest.json`:
       "id": "make-it-red@example.com",
       "update_url": "https://zotero-download.s3.amazonaws.com/tmp/make-it-red/updates-2.0.json",
       "strict_min_version": "6.999",
-      "strict_max_version": "7.0.*"
+      "strict_max_version": "8.0.*"
     }
   }
 }
@@ -1090,6 +1090,8 @@ You can now access resources using the `chrome://myplugin/content/` URI. For exa
 
 # 3 UX Guidelines
 
+TBD
+
 # 4 Best Practice
 
 In this section, we’ll outline some best practices for handling common tasks in Zotero plugin development. All code examples are intended to run in the plugin’s sandbox environment unless stated otherwise.
@@ -1100,12 +1102,12 @@ The item tree displays items in the Zotero library pane. By default, it includes
 
 <!-- TODO: update API -->
 
-To add a custom column to the item tree, you can use the `Zotero.ItemTreeManager.registerColumns` method in the `startup` hook. The custom columns can be automatically unregistered when the plugin is unloaded.
+To add a custom column to the item tree, you can use the `Zotero.ItemTreeManager.registerColumn` method in the `startup` hook. The custom columns can be automatically unregistered when the plugin is unloaded.
 
 For example, to add a custom column to display the reversed title of the item:
 
 ```javascript
-const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
+const registeredDataKey = await Zotero.ItemTreeManager.registerColumn({
   dataKey: "rtitle",
   label: "Reversed Title",
   pluginID: "myplugin@mydomain.com", // Replace with your plugin ID
@@ -1118,13 +1120,13 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
 To remove the custom column:
 
 ```javascript
-await Zotero.ItemTreeManager.unregisterColumns(registeredDataKey);
+await Zotero.ItemTreeManager.unregisterColumn(registeredDataKey);
 ```
 
-Here is another example that uses all the available options of the `registerColumns` method:
+Here is another example that uses all the available options of the `registerColumn` method:
 
 ```javascript
-const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
+const registeredDataKey = await Zotero.ItemTreeManager.registerColumn({
   dataKey: "rtitle",
   label: "Reversed Title",
   enabledTreeIDs: ["main"], // only show in the main item tree
@@ -1160,7 +1162,7 @@ const registeredDataKey = await Zotero.ItemTreeManager.registerColumns({
 });
 ```
 
-For more information about the API, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/itemTreeManager.js).
+For more information about the API, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/pluginAPI/itemTreeManager.js).
 
 ## 4.2 Adding Custom Section to Item Pane
 
@@ -1196,7 +1198,7 @@ To unregister the custom section:
 Zotero.ItemPaneManager.unregisterSection(registeredID);
 ```
 
-For more advanced options, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/itemPaneManager.js).
+For more advanced options, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/pluginAPI/itemPaneManager.js).
 
 Explanations of the hooks of the item pane section:
 
@@ -1209,7 +1211,41 @@ Explanations of the hooks of the item pane section:
 
 Only `onInit` and `onDestroy` will always be called. The other hooks will be called when Zotero thinks it is necessary. For example, `onItemChange` will be called when the item changes, but that does not mean the section will be rendered, and `onRender` might not be called. Also, calling `onRender` does not guarantee that the `onAsyncRender` will be called.
 
-## 4.3 Adding Pane to Preferences Window
+## 4.3 Adding Custom Row to Item Pane Info Section
+
+The item pane info section displays item metadata (fields). Plugins can add custom rows to show additional fields.
+
+To add a custom row, use `Zotero.ItemPaneManager.registerInfoRow` in your plugin’s `startup` hook. The custom sections can be automatically unregistered when the plugin is unloaded.
+
+```javascript
+const registeredID = Zotero.ItemPaneManager.registerInfoRow({
+  rowID: "custom-info-row-example",
+  pluginID: "example@example.com",
+  label: {
+    l10nID: "general-print",
+  },
+  position: "afterCreators",
+  multiline: false,
+  nowrap: false,
+  editable: true,
+  onGetData({ rowID, item, tabType, editable }) {
+    return item.getField("title").split("").reverse().join("");
+  },
+  onSetData({ rowID, item, tabType, editable, value }) {
+    Zotero.debug(`Set custom info row ${rowID} of item ${item.id} to ${value}`);
+  },
+});
+```
+
+To unregister the custom section:
+
+```javascript
+Zotero.ItemPaneManager.unregisterInfoRow(registeredID);
+```
+
+For more advanced options, refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/pluginAPI/itemPaneManager.js).
+
+## 4.4 Adding Pane to Preferences Window
 
 The preferences window allows users to configure settings in Zotero. Plugins should add their own panes to this window so users can easily adjust the plugin's options.
 
@@ -1244,9 +1280,9 @@ Organizing your pane as a sequence of top-level `<groupbox>`es ' will optimize 
 
 To avoid conflicts with other plugins, make sure all `class`, `id`, and `data-l10n-id` attributes in your preference pane are properly namespaced.
 
-## 4.4 Menu
+## 4.5 Menu
 
-### 4.4.1 Menu Bar
+### 4.5.1 Menu Bar
 
 Zotero's main window has a menu bar containing various menus, such as `File`, `Edit`, and `Tools`. Plugins can add their own menu items to this menu bar to offer additional functionality to users.
 
@@ -1299,7 +1335,7 @@ The full list of the query selectors for the menu bar is as follows:
 - `#menu_ToolsPopup`: for the `Tools` menu.
 - `#menu_HelpPopup`: for the `Help` menu.
 
-### 4.4.2 Library Context Menu
+### 4.5.2 Library Context Menu
 
 The library context menu appears when you right-click on an item or collection in the library pane. Plugins can add their own options to this menu, enabling custom actions that apply specifically to items or collections.
 
@@ -1346,7 +1382,7 @@ The full list of the query selectors for the library context menu is as follows:
 - `#zotero-collectionmenu`: for the collection context menu.
 - `#zotero-itemmenu`: for the item context menu.
 
-### 4.4.3 Reader Context Menu
+### 4.5.3 Reader Context Menu
 
 The reader context menu appears when you right-click on the reader. This menu can be customized to provide additional functionality, such as adding actions for annotations or specific text selections within documents.
 
@@ -1392,7 +1428,7 @@ The following context menu types are supported for the `registerEventListener` m
 
 For more information about the API, refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
 
-## 4.5 Injecting to Reader UI
+## 4.6 Injecting to Reader UI
 
 The reader interface in Zotero is inside an iframe. This means that directly injecting elements into the reader UI is not possible. Plugins can add custom elements to the reader UI using the `Zotero.Reader.registerEventListener` method in the `startup` function. The event listener you register will automatically be removed when the plugin is unloaded.
 
@@ -1427,13 +1463,13 @@ The following injecting UI types are supported for the `registerEventListener` m
 
 For more information about the API, refer to the [source code](https://github.com/zotero/blob/main/chrome/content/zotero/xpcom/reader.js).
 
-## 4.6 HTTP Request
+## 4.7 HTTP Request
 
 Zotero provides a set of APIs for making HTTP requests. The `Zotero.HTTP` object is used to make HTTP requests. It has the following important methods:
 
 - `request(method, url, options)`: makes an HTTP request.
 
-### 4.6.1 Making a GET Request
+### 4.7.1 Making a GET Request
 
 ```javascript
 let url = "https://jsonplaceholder.typicode.com/posts/1";
@@ -1451,7 +1487,7 @@ let req = await Zotero.HTTP.request("GET", url, { responseType: "json" });
 Zotero.debug(req.response); // object
 ```
 
-### 4.6.2 Making a POST Request
+### 4.7.2 Making a POST Request
 
 ```javascript
 let url = "https://jsonplaceholder.typicode.com/posts";
@@ -1472,11 +1508,11 @@ Zotero.debug(req.statusText); // Created
 Zotero.debug(req.response); // object
 ```
 
-## 4.7 File I/O
+## 4.8 File I/O
 
 Zotero provides a set of APIs for file I/O operations in `Zotero.File`. Plugins can also use [IOUtils](https://firefox-source-docs.mozilla.org/dom/ioutils_migration.html) and [PathUtils](https://searchfox.org/mozilla-esr115/source/dom/chrome-webidl/PathUtils.webidl) for the operations that are not provided by `Zotero.File`.
 
-### 4.7.1 Reading file
+### 4.8.1 Reading file
 
 ```javascript
 let path = "/Users/user/Desktop/data.json";
@@ -1484,7 +1520,7 @@ let data = await Zotero.File.getContentsAsync(path);
 Zotero.debug(data);
 ```
 
-### 4.7.2 Writing file
+### 4.8.2 Writing file
 
 ```javascript
 let path = "/Users/user/Desktop/file.txt";
@@ -1492,7 +1528,7 @@ let data = "This is some text.";
 await Zotero.File.putContentsAsync(path, data);
 ```
 
-### 4.7.3 Renaming file
+### 4.8.3 Renaming file
 
 ```javascript
 let oldPath = "/Users/user/Desktop/old.txt";
@@ -1500,14 +1536,14 @@ let newPath = "/Users/user/Desktop/new.txt";
 await Zotero.File.rename(oldPath, newPath);
 ```
 
-### 4.7.4 Removing file
+### 4.8.4 Removing file
 
 ```javascript
 let path = "/Users/user/Desktop/file.txt";
 await Zotero.File.removeIfExists(path);
 ```
 
-### 4.7.5 Iterating directory
+### 4.8.5 Iterating directory
 
 ```javascript
 let dirPath = "/Users/user/Desktop";
@@ -1516,7 +1552,7 @@ await Zotero.File.iterateDirectory(dirPath, (entry) => {
 });
 ```
 
-### 4.7.6 Picking File or Directory
+### 4.8.6 Picking File or Directory
 
 First, you need to import the `FilePicker` class:
 
@@ -1585,11 +1621,11 @@ if (rv == fp.returnOK || rv == fp.returnReplace) {
 }
 ```
 
-## 4.8 Heavy Task with Web Worker
+## 4.9 Heavy Task with Web Worker
 
 For heavy tasks that may block the main thread, plugins can use a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to run the task in the background in a separate thread.
 
-### 4.8.1 Don't Block the Main Thread
+### 4.9.1 Don't Block the Main Thread
 
 For example, we have a heavy task that takes a long time to finish. It takes the item's title as input and shifts the characters by 1 in the ASCII table for each character for `10000000` times.
 
@@ -1627,7 +1663,7 @@ If you run it in the main thread, it will block the UI and make the Zotero windo
 
 > ❗️ Be aware of the performance of the code. Do not run heavy tasks in the main thread. Freezing the UI is a bad user experience.
 
-### 4.8.2 Running Heavy Task in Web Worker
+### 4.9.2 Running Heavy Task in Web Worker
 
 You may want to directly run the full code in the worker. However, the worker does not have access to the privileged APIs. It cannot access the item data directly.
 
@@ -1726,7 +1762,7 @@ The worker will run the task in the background and send the result back to the m
 
 ![Run heavy task using web worker](./attachments/worker-oneway.png)
 
-### 4.8.3 Variant: Accessing Zotero APIs in the Worker
+### 4.9.3 Variant: Accessing Zotero APIs in the Worker
 
 The web worker does not have direct access to the privileged APIs. If you want to access privileged APIs in the worker, you can write a wrapper function in the main thread and call the function from the worker using message passing.
 
@@ -1847,9 +1883,9 @@ When you run the code, the worker will receive the item ID, request the item tit
 
 ![Run variant heavy task in web worker](./attachments/worker-twoway.png)
 
-## 4.9 Item Operations
+## 4.10 Item Operations
 
-### 4.9.1 Creating Items
+### 4.10.1 Creating Items
 
 A typical operation might include a call to `Zotero.Items.get()` to retrieve a `Zotero.Item` instance, calls to `Zotero.Item` methods on the retrieved object to modify data, and finally a `save()` (within a transaction) or `saveTx()` (outside a transaction) to save the modified data to the database.
 
@@ -1879,7 +1915,7 @@ item.setField("date", 1599);
 await item.saveTx(); // update database with new data
 ```
 
-### 4.9.2 Getting Item Data
+### 4.10.2 Getting Item Data
 
 Different item (specifically, regular item) types have different fields. To get the value of a field, use the `getField()` method. For example, to get an item's abstract, we get the `abstractNote` field from the Zotero item:
 
@@ -1889,7 +1925,7 @@ let abstract = item.getField("abstractNote");
 
 > 🔗 For more details about item fields, see [item_types_and_fields](https://www.zotero.org/support/kb/item_types_and_fields).
 
-### 4.9.3 Child notes
+### 4.10.3 Child notes
 
 To get the child notes for an item, we use the following code:
 
@@ -1906,7 +1942,7 @@ for (let id of noteIDs) {
 }
 ```
 
-### 4.9.4 Related Items
+### 4.10.4 Related Items
 
 let relatedItems = item.relatedItems;
 
@@ -1921,7 +1957,7 @@ itemB.addRelatedItem(itemA);
 await itemB.saveTx();
 ```
 
-### 4.9.5 Attachments full text
+### 4.10.5 Attachments full text
 
 The code below gets the full text of HTML and PDF items in storage and put the data in an array:
 
@@ -1940,9 +1976,9 @@ if (item.isRegularItem()) {
 }
 ```
 
-## 4.10 Collection Operations
+## 4.11 Collection Operations
 
-### 4.10.1 Get the items in the selected collection
+### 4.11.1 Get the items in the selected collection
 
 ```javascript
 let collection = ZoteroPane.getSelectedCollection();
@@ -1951,7 +1987,7 @@ let items = collection.getChildItems();
 let itemIDs = collection.getChildItems(true);
 ```
 
-### 4.10.2 Create a subcollection of the selected collection
+### 4.11.2 Create a subcollection of the selected collection
 
 ```javascript
 let currentCollection = ZoteroPane.getSelectedCollection();
@@ -1962,7 +1998,7 @@ let collectionID = await collection.saveTx();
 return collectionID;
 ```
 
-## 4.11 Search Operations
+## 4.12 Search Operations
 
 If you are focused on data access, the first thing you will want to do will be to retrieve items from your Zotero library. Creating an in-memory search is a good start.
 
@@ -1971,7 +2007,7 @@ let s = new Zotero.Search();
 s.libraryID = Zotero.Libraries.userLibraryID;
 ```
 
-### 4.11.1 Search for items containing a specific tag
+### 4.12.1 Search for items containing a specific tag
 
 Starting with the above code, we then use the following code to retrieve items in My Library with a particular tag:
 
@@ -1980,7 +2016,7 @@ s.addCondition("tag", "is", "tag name here");
 let itemIDs = await s.search();
 ```
 
-### 4.11.2 Advanced searches
+### 4.12.2 Advanced searches
 
 ```javascript
 let s = new Zotero.Search();
@@ -1997,7 +2033,7 @@ s.addCondition("includeParentsAndChildren", "true");
 ("Include parent and child ...");
 ```
 
-### 4.11.3 Search by collection
+### 4.12.3 Search by collection
 
 To search for a collection or a saved search you need to know the ID or key:
 
@@ -2009,14 +2045,14 @@ s.addCondition("collection", "is", collectionKey); // e.g., 'C72FDAP2'
 s.addCondition("savedSearch", "is", savedSearchKey);
 ```
 
-### 4.11.4 Search by creator
+### 4.12.4 Search by creator
 
 ```javascript
 let name = "smith";
 s.addCondition("creator", "contains", name);
 ```
 
-### 4.11.5 Search by tag
+### 4.12.5 Search by tag
 
 To search by tag, you use the tag text:
 
@@ -2025,11 +2061,11 @@ let tagName = "something";
 s.addCondition("tag", "is", tagName);
 ```
 
-### 4.11.6 Search by other fields
+### 4.12.6 Search by other fields
 
 The complete list of other fields available to search on is on the [search fields](https://www.zotero.org/support/dev/client_coding/javascript_api/search_fields "dev:client_coding:javascript_api:search_fields") page.
 
-### 4.11.7 Execute the search
+### 4.12.7 Execute the search
 
 Once the search conditions have been set up, then it's time to execute the results:
 
@@ -2043,7 +2079,7 @@ This returns the item IDs in the search as an array. The next thing to do is to 
 let items = await Zotero.Items.getAsync(itemIDs);
 ```
 
-## 4.12 Interacting with ZoteroPane
+## 4.13 Interacting with ZoteroPane
 
 The code below shows how to interact with the Zotero pane to get the currently selected items.
 
@@ -2071,7 +2107,7 @@ if (item && !item.isNote()) {
 }
 ```
 
-## 4.13 Shutting Down
+## 4.14 Shutting Down
 
 When a plugin is shut down, it is important to clean up resources allocated during its lifetime to prevent memory leaks. This includes unregistering event listeners, closing open connections, and releasing any other allocated resources.
 
