@@ -4,6 +4,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "Dev Docs for Zotero Plugin",
   description: "Documents for Zotero Plugin Developers",
+  base: "/doc-for-zotero-plugin-dev/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
