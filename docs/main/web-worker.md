@@ -259,3 +259,7 @@ Zotero.debug(`Time: ${time} ms`);
 When you run the code, the worker will receive the item ID, request the item title from the main thread, run the heavy task, and send the result back to the main thread.
 
 ![Run variant heavy task in web worker](../assets/worker-twoway.png)
+
+## Chrome Worker
+
+Chrome worker is a special type of web worker. The major difference is that it has access to the privileged APIs, which allows it to perform tasks that regular web workers cannot. For more information, see the [Chrome Worker documentation](https://devdoc.net/web/developer.mozilla.org/en-US/docs/Web/API/ChromeWorker.html).
