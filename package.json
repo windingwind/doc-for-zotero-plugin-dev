@@ -1,0 +1,29 @@
+{
+  "name": "zotero-plugin-document",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://github.com/windingwind/zotero-plugin-document#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windingwind/zotero-plugin-document.git"
+  },
+  "bugs": {
+    "url": "https://github.com/windingwind/zotero-plugin-document/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "lint:check": "prettier . --check && eslint .",
+    "lint:fix": "prettier . --write && eslint . --fix",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^5.2.1",
+    "eslint": "^9.33.0",
+    "prettier": "^3.6.2",
+    "vitepress": "^2.0.0-alpha.11"
+  }
+}

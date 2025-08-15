@@ -1,2 +1,7 @@
 .DS_Store
 .obsidian
+node_modules
+docs/.vitepress/dist
+docs/.vitepress/cache
+docs/reference/**
+!docs/reference/.gitkeep
