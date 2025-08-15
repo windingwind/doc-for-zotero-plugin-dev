@@ -10,6 +10,7 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "Docs", link: "/main/" },
+      { text: "APIs", link: "/api/" },
     ],
 
     sidebar: {
@@ -134,6 +135,25 @@ export default defineConfig({
               link: "/main/shutdown",
             },
           ],
+        },
+      ],
+
+      "/api/": [
+        {
+          text: "Reader",
+          link: "/api/reader",
+        },
+        {
+          text: "Preference Panes",
+          link: "/api/preferencePanes",
+        },
+        {
+          text: "Item Pane Manager",
+          link: "/api/itemPaneManager",
+        },
+        {
+          text: "Item Tree Manager",
+          link: "/api/itemTreeManager",
         },
       ],
     },

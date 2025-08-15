@@ -10,6 +10,8 @@ hero:
     - theme: brand
       text: Open Documentation
       link: /main/
+    - text: API Reference
+      link: /api/
 
 features:
   - title: Getting Started
@@ -21,4 +23,7 @@ features:
   - title: Best Practices
     details: Explore practical implementation guides for custom UI components, file operations, HTTP requests, and various Zotero operations with real-world examples.
     link: /main/custom-column-item-tree
+  - title: API Reference
+    details: Dive into the comprehensive API documentation for Zotero plugins, including all available classes, methods, and events.
+    link: /api/
 ---
