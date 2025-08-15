@@ -66,7 +66,6 @@ jobs:
 
       - name: Build Documentation
         run: |
-          npm run docs:generate
           npm run docs:build
 
       - name: Upload artifact
