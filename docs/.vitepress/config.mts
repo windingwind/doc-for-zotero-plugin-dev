@@ -164,5 +164,9 @@ export default defineConfig({
         link: "https://github.com/windingwind/doc-for-zotero-plugin-dev",
       },
     ],
+
+    search: {
+      provider: "local",
+    },
   },
 });
