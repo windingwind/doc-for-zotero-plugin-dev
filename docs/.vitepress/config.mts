@@ -155,6 +155,10 @@ export default defineConfig({
           text: "Item Tree Manager",
           link: "/api/itemTreeManager",
         },
+        {
+          text: "Menu Manager",
+          link: "/api/menuManager",
+        },
       ],
     },
 
