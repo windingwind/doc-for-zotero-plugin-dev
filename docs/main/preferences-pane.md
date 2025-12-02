@@ -11,9 +11,9 @@ For advanced customization options, refer to the [source code](https://github.co
 ```javascript
 Zotero.PreferencePanes.register({
   pluginID: "make-it-red@zotero.org",
-  src: "prefs.xhtml",
-  scripts: ["prefs.js"],
-  stylesheets: ["prefs.css"],
+  src: "preferences.xhtml",
+  scripts: ["preferences.js"],
+  stylesheets: ["preferences.css"],
 });
 ```
 
