@@ -11,6 +11,7 @@ export default defineConfig({
       { text: "Home", link: "/" },
       { text: "Docs", link: "/main/" },
       { text: "APIs", link: "/api/" },
+      { text: "Tools", link: "/tools/" },
     ],
 
     sidebar: {
@@ -158,6 +159,24 @@ export default defineConfig({
         {
           text: "Menu Manager",
           link: "/api/menuManager",
+        },
+      ],
+      "/tools/": [
+        {
+          text: "Start Point",
+          link: "/tools/start-point",
+        },
+        {
+          text: "Dependencies & SDKs",
+          link: "/tools/dependencies",
+        },
+        {
+          text: "CLI Tools",
+          link: "/tools/cli",
+        },
+        {
+          text: "Other Resources",
+          link: "/tools/resources",
         },
       ],
     },

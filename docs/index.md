@@ -12,6 +12,9 @@ hero:
       link: /main/
     - text: API Reference
       link: /api/
+    - theme: alt
+      text: Tools
+      link: /tools/
 
 features:
   - title: Getting Started
