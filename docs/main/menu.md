@@ -1,8 +1,65 @@
 # Menu
 
+Since Zotero 8, use the [`Zotero.MenuManager` API](../api/menuManager.md) to register custom menus:
+
+```javascript
+// In the plugin's bootstrap.js
+function startup() {
+  // ...
+  Zotero.MenuManager.registerMenu({
+    menuType: "menuitem",
+    target: "main/menubar/edit",
+    l10nID: "myplugin-menu-item",
+    onCommand: () => {
+      Zotero.debug("My Menu Item is clicked");
+    },
+    menuID: "myplugin-menubar-menu",
+    pluginID: "myplugin@mydomain.com",
+  });
+  // ...
+}
+```
+
+The corresponding FTL file for localization should be loaded to the window where it is used and include the following:
+
+```ftl
+myplugin-menu-item =
+  .label = My Menu Item
+```
+
+The `target` property specifies where the menu item should be added. The available targets are:
+
+- `main/menubar/file`
+- `main/menubar/edit`
+- `main/menubar/view`
+- `main/menubar/go`
+- `main/menubar/tools`
+- `main/menubar/help`
+- `main/library/item`
+- `main/library/collection`
+- `main/library/addAttachment`
+- `main/library/addNote`
+- `main/tab`
+- `reader/menubar/file`
+- `reader/menubar/edit`
+- `reader/menubar/view`
+- `reader/menubar/go`
+- `reader/menubar/window`
+- `itemPane/info/row`
+- `notesPane/addItemNote`
+- `notesPane/addStandaloneNote`
+- `sidenav/locate`
+
+Refer to the [source code](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/pluginAPI/menuManager.js) for more details.
+
 ## Menu Bar
 
 Zotero's main window has a menu bar containing various menus, such as `File`, `Edit`, and `Tools`. Plugins can add their own menu items to this menu bar to offer additional functionality to users.
+
+Use the target `main/menubar` or `reader/menubar` to add menu items to the main window or reader menu bar, respectively.
+
+<details>
+<summary>Legacy approach for Zotero 7 or lower</summary>
 
 The main menu bar is defined by the `menubar#main-menubar` element in `zoteroPane.xhtml`, which is the XHTML file for Zotero's main window.
 
@@ -53,9 +110,16 @@ The full list of the query selectors for the menu bar is as follows:
 - `#menu_ToolsPopup`: for the `Tools` menu.
 - `#menu_HelpPopup`: for the `Help` menu.
 
+</details>
+
 ## Library Context Menu
 
 The library context menu appears when you right-click on an item or collection in the library pane. Plugins can add their own options to this menu, enabling custom actions that apply specifically to items or collections.
+
+Use the target `main/library/item` or `main/library/collection` to add menu items to the library item or collection context menus, respectively.
+
+<details>
+<summary>Legacy approach for Zotero 7 or lower</summary>
 
 Similar to adding items to the menu bar, plugins can add menu items to the library context menu by inserting menu items or popups in the `onMainWindowLoad` function, which is called when Zotero's main window is loaded.
 
@@ -99,6 +163,32 @@ The full list of the query selectors for the library context menu is as follows:
 
 - `#zotero-collectionmenu`: for the collection context menu.
 - `#zotero-itemmenu`: for the item context menu.
+
+</details>
+
+## Other Context Menus
+
+### Add Attachment/Add Note Context Menu
+
+Used in the `File` menu of the main window and the dropdown menu of the library's toolbar.
+
+Use the target `main/library/addAttachment` or `main/library/addNote`.
+
+### Tab Context Menu
+
+Used in the right-click menu of the tab bar in Zotero's main window. Use the target `main/tab`.
+
+### Item Pane Context Menu
+
+Used in the right-click menu of the item pane info section. Use the target `itemPane/info/row`. Also works for custom fields added by `Zotero.ItemPaneManager.registerInfoRow`.
+
+### Notes Pane Context Menu
+
+Used in the dropdown menu of the notes pane add button. Use the target `notesPane/addItemNote` or `notesPane/addStandaloneNote`.
+
+### Side Navigation Context Menu
+
+Used in the dropdown menu of the side navigation pane's locate button. Use the target `sidenav/locate`.
 
 ## Reader Context Menu
 

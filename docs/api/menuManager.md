@@ -1,4 +1,4 @@
-> This API is not yet available in Zotero builds.
+> This API is only available in Zotero 8 beta builds.
 
 ## Objects
 
