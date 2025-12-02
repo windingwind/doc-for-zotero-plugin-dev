@@ -13,7 +13,7 @@ A ready-to-use template that sets up the basic structure of a Zotero plugin, inc
 
 > I strongly recommend beginners to start with this template. It really saves your precious time and effort, from the very beginning of setting up the development environment to the very end of long term release and maintenance.
 
-For the dependencies that make this template magical, please refer to the [Libraries](./libraries.md) document.
+For the dependencies that make this template magical, please refer to the [Libraries](./dependencies.md) document.
 
 ## [make-it-red](https://github.com/zotero/make-it-red)
 
