@@ -22,6 +22,13 @@ export default defineConfig({
   },
   head: [
     ["link", { rel: "icon", href: `${SITE_BASE}favicon.ico` }],
+    [
+      "meta",
+      {
+        name: "google-site-verification",
+        content: "D9lxTAPXFUnkxvTX4qiba0DRgOGHb7G3Ixpzwl4LJNA",
+      },
+    ],
     ["meta", { name: "theme-color", content: "#3c8772" }],
     [
       "meta",
