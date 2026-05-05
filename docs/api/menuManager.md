@@ -1,5 +1,3 @@
-> This API is only available in Zotero 8 beta builds.
-
 ## Objects
 
 <dl>
