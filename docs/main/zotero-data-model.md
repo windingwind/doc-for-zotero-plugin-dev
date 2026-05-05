@@ -11,7 +11,72 @@ For example:
 
 This relation can be described as follows:
 
-![Data Model Example](../assets/data-model-example.png)
+Edge colors in the diagram below:
+
+- <span style="color:#10b981">**green**</span> — in collection (collection → item, or parent → sub-collection)
+- <span style="color:#3b82f6">**blue**</span> — child item (parent item → child item)
+- <span style="color:#9ca3af">**gray**</span> — instance of class
+- <span style="color:#8b5cf6">**purple**</span> — class inheritance
+
+```mermaid
+flowchart LR
+    subgraph Library["{{zotero:library}} Library"]
+        direction LR
+        subgraph Collections[" "]
+            direction TB
+            CollectionA["{{zotero:folder}} Collection A"]
+            CollectionB["{{zotero:folder}} Collection B"]
+            CollectionC["{{zotero:folder}} Collection C"]
+        end
+        subgraph Items[" "]
+            direction TB
+            ItemBook["{{zotero:book}} Victorian Dogs, ..."]
+            ItemPDF["{{zotero:attachment-pdf}} Full Text PDF"]
+            ItemChildNote["{{zotero:note}} Child Note of Top Level Item"]
+            AnnotHL["{{zotero:annotate-highlight}} Highlight Annotation"]
+            AnnotNote["{{zotero:annotate-note}} Note Annotation"]
+            ItemNote["{{zotero:note}} Item Note"]
+        end
+
+        CollectionB --> CollectionC
+        CollectionA --> ItemBook
+        CollectionA --> ItemNote
+        CollectionC --> ItemNote
+        ItemBook --> ItemPDF
+        ItemBook --> ItemChildNote
+        ItemPDF --> AnnotHL
+        ItemPDF --> AnnotNote
+    end
+
+    Library --> ZLibrary["Zotero.Library"]
+    CollectionA --> ZCollection["Zotero.Collection"]
+    CollectionB --> ZCollection
+    CollectionC --> ZCollection
+    ItemBook --> ZItem["Zotero.Item"]
+    ItemPDF --> ZItem
+    ItemChildNote --> ZItem
+    ItemNote --> ZItem
+    AnnotHL --> ZItem
+    AnnotNote --> ZItem
+
+    ZLibrary --> ZDataObject["Zotero.DataObject"]
+    ZCollection --> ZDataObject
+    ZItem --> ZDataObject
+
+    classDef dashed stroke-dasharray: 5 5
+    class ZLibrary,ZCollection,ZItem,ZDataObject dashed
+    style Collections fill:none,stroke:none
+    style Items fill:none,stroke:none
+
+    %% in collection (green)
+    linkStyle 0,1,2,3 stroke:#10b981,stroke-width:2px
+    %% child item (blue)
+    linkStyle 4,5,6,7 stroke:#3b82f6,stroke-width:2px
+    %% instance of class (gray)
+    linkStyle 8,9,10,11,12,13,14,15,16,17 stroke:#9ca3af,stroke-width:1.5px
+    %% class inheritance (purple)
+    linkStyle 18,19,20 stroke:#8b5cf6,stroke-width:2px
+```
 
 Each data class (like `Item` or `Collection`) has a corresponding "manager" object, which you can use to manage those instances. For example, to retrieve an `Item` object, you would use the `Zotero.Items` object:
 
@@ -103,7 +168,30 @@ After making changes, always call `save()` or `saveTx()` to store them. We'll co
 
 Besides the shared properties and methods, different types of data objects have additional properties and methods, as shown in the figure below:
 
-![uml](../assets/uml_dataObject.png)
+```mermaid
+classDiagram
+    class DataObject {
+        +id: number
+        +key: string
+        +save() Promise
+        +erase() Promise
+    }
+    class Search {
+        +conditions: object
+        +search() Promise
+    }
+    class Item {
+        +itemTypeID: number
+        +getField(string) string
+    }
+    class Collection {
+        +name: string
+        +getDescendents() object
+    }
+    DataObject <|-- Search
+    DataObject <|-- Item
+    DataObject <|-- Collection
+```
 
 We'll cover the different types of data objects in the following sections.
 

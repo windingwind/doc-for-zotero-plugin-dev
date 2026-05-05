@@ -14,7 +14,96 @@ Every Zotero plugin follows a lifecycle, from installation to uninstallation. Du
 The figure below illustrates the plugin lifecycle and the order in which the hooks are called.
 The figure below shows the lifecycle of a plugin and how the hooks are called.
 
-![lifecycle](../assets/lifecycle.png)
+```mermaid
+flowchart LR
+    User((User))
+    Update((Plugin Update))
+
+    subgraph UserActions[" "]
+        direction TB
+        Install(["Install Plugin"])
+        Enable(["Enable Plugin"])
+        Disable(["Disable Plugin"])
+        Uninstall(["Uninstall Plugin"])
+        Install --> Enable
+        Uninstall --> Disable
+    end
+
+    subgraph PluginHooks["plugin lifecycle hooks"]
+        direction TB
+        installHook["install()"]
+        startupHook["startup()"]
+        shutdownHook["shutdown()"]
+        uninstallHook["uninstall()"]
+    end
+
+    StartupLabel(["Zotero Startup"])
+    LoadMain["Load Main Window"]
+    LoadPlugins["Load Plugins"]
+    Ready(("main loop"))
+    OpenWin["Open Main Window"]
+    CloseWin["Close Main Window"]
+    ShutdownLabel(["Zotero Shutdown"])
+    UnloadMain["Unload Main Window"]
+    UnloadPlugins["Unload Plugins"]
+    ExitLabel(["Zotero Exit"])
+
+    StartupLabel --> LoadMain --> LoadPlugins --> Ready
+    Ready --> ShutdownLabel --> UnloadMain --> UnloadPlugins --> ExitLabel
+
+    Ready -.-> OpenWin
+    OpenWin -.-> CloseWin
+    CloseWin -.-> Ready
+
+    subgraph WindowHooks["window hooks"]
+        direction TB
+        onLoad["onMainWindowLoad()"]
+        onUnload["onMainWindowUnload()"]
+    end
+
+    User --> Install
+    User --> Enable
+    User --> Disable
+    User --> Uninstall
+
+    Update --> Install
+    Update --> Uninstall
+
+    Install -.-> installHook
+    Enable -.-> startupHook
+    Disable -.-> shutdownHook
+    Uninstall -.-> uninstallHook
+
+    LoadPlugins -.-> startupHook
+    UnloadPlugins -.-> shutdownHook
+
+    OpenWin -.-> onLoad
+    CloseWin -.-> onUnload
+    UnloadMain -.-> onUnload
+
+    classDef external fill:#f0f0f0,stroke:#999,color:#555,font-style:italic
+    classDef actor fill:transparent,stroke:transparent,color:#333
+    classDef zoteroStep fill:#3a5fc4,color:#fff,stroke:#3a5fc4
+    classDef ready fill:#888,color:#fff,stroke:#666
+    classDef hook fill:transparent,stroke:#3aa860,color:#3aa860
+    classDef windowHook fill:transparent,stroke:#e69143,color:#e69143
+
+    class installHook,startupHook,shutdownHook,uninstallHook hook
+    class onLoad,onUnload windowHook
+    class LoadMain,LoadPlugins,OpenWin,CloseWin,UnloadMain,UnloadPlugins zoteroStep
+    class Ready ready
+    class Install,Enable,Disable,Uninstall,StartupLabel,ShutdownLabel,ExitLabel external
+    class User,Update actor
+
+    style UserActions fill:transparent,stroke:transparent
+    style PluginHooks fill:transparent,stroke:#3aa860,stroke-dasharray:5 5,color:#3aa860
+    style WindowHooks fill:transparent,stroke:#e69143,stroke-dasharray:5 5,color:#e69143
+
+    %% plugin-hook (dashed green) edges: Install/Enable/Disable/Uninstall hooks + Load/Unload Plugins hooks
+    linkStyle 18,19,20,21,22,23 stroke:#3aa860,stroke-dasharray:5 5
+    %% window-hook (dashed orange) edges
+    linkStyle 24,25,26 stroke:#e69143,stroke-dasharray:5 5
+```
 
 > 💡 Try this out!
 >

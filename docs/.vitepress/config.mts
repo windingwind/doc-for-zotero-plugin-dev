@@ -5,6 +5,20 @@ export default defineConfig({
   title: "Dev Docs for Zotero Plugin",
   description: "Documents for Zotero Plugin Developers",
   base: "/doc-for-zotero-plugin-dev/",
+  markdown: {
+    config(md) {
+      const defaultFence = md.renderer.rules.fence!;
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const token = tokens[idx];
+        if (token.info.trim() === "mermaid") {
+          const id = `${env.path || ""}-${idx}`.replace(/[^a-z0-9]/gi, "-");
+          const code = encodeURIComponent(token.content);
+          return `<Mermaid id="${id}" code="${code}" />`;
+        }
+        return defaultFence(tokens, idx, options, env, self);
+      };
+    },
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [

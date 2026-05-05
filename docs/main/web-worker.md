@@ -36,7 +36,15 @@ const title = item.getField("title");
 
 If you run it in the main thread, it will block the UI and make the Zotero window unresponsive.
 
-![Run heavy task in main thread](../assets/worker-main.png)
+```mermaid
+sequenceDiagram
+    participant Main as Main Thread
+
+    Note over Main: compute() runs 📦 heavy task
+    activate Main
+    Note over Main: ❌ UI and other tasks blocked
+    deactivate Main
+```
 
 > ❗️ Be aware of the performance of the code. Do not run heavy tasks in the main thread. Freezing the UI is a bad user experience.
 
@@ -44,7 +52,17 @@ If you run it in the main thread, it will block the UI and make the Zotero windo
 
 You may want to directly run the full code in the worker. However, the worker does not have access to the privileged APIs. It cannot access the item data directly.
 
-![Run heavy task in worker thread](../assets/worker-sub.png)
+```mermaid
+sequenceDiagram
+    participant Main as Main Thread
+    participant Worker as Worker Thread
+
+    Note over Worker: compute() needs item data
+    activate Worker
+    Worker--xMain: ❌ Zotero APIs not accessible
+    Note over Main: Other tasks keep running
+    deactivate Worker
+```
 
 To run the task in a web worker, you can create a new worker and run the task in the worker.
 
@@ -137,7 +155,19 @@ Zotero.debug(`Time: ${time} ms`);
 
 The worker will run the task in the background and send the result back to the main thread. The main thread will receive the result and print it. The UI will not be blocked during the task.
 
-![Run heavy task using web worker](../assets/worker-oneway.png)
+```mermaid
+sequenceDiagram
+    participant Main as Main Thread<br/>runCompute()
+    participant Worker as Worker Thread<br/>message handler
+
+    Main->>Worker: { title, type: "compute" }
+    activate Worker
+    Note over Worker: 📦 compute() runs heavy task
+    Worker-->>Main: { result, type: "computeReturn" }
+    deactivate Worker
+
+    Note over Main: Other tasks keep running
+```
 
 ## Variant: Accessing Zotero APIs in the Worker
 
@@ -258,7 +288,25 @@ Zotero.debug(`Time: ${time} ms`);
 
 When you run the code, the worker will receive the item ID, request the item title from the main thread, run the heavy task, and send the result back to the main thread.
 
-![Run variant heavy task in web worker](../assets/worker-twoway.png)
+```mermaid
+sequenceDiagram
+    participant Main as Main Thread
+    participant Worker as Worker Thread
+
+    Main->>Worker: { itemID, type: "compute" }
+    activate Worker
+    Note over Worker: async runCompute()
+    Worker->>Main: { itemID, type: "getItemTitle" }
+    activate Main
+    Note over Main: wrapper::getItemTitle(itemID)
+    Main-->>Worker: { title, type: "getItemTitleReturn" }
+    deactivate Main
+    Note over Worker: 📦 compute(title) runs heavy task
+    Worker-->>Main: { result, type: "computeReturn" }
+    deactivate Worker
+
+    Note over Main: Other tasks keep running
+```
 
 ## Chrome Worker
 

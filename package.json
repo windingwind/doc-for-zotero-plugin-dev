@@ -16,9 +16,15 @@
   "scripts": {
     "lint:check": "prettier . --check && eslint .",
     "lint:fix": "prettier . --write && eslint . --fix",
+    "docs:fetch-icons": "node docs/scripts/fetch-zotero-icons.mjs",
+    "predocs:dev": "npm run docs:fetch-icons",
     "docs:dev": "vitepress dev docs",
+    "predocs:build": "npm run docs:fetch-icons",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "mermaid": "^11.14.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.2.1",

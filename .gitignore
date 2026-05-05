@@ -3,5 +3,6 @@
 node_modules
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/public/icons/zotero
 docs/reference/**
 !docs/reference/.gitkeep
