@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://windingwind.github.io/doc-for-zotero-plugin-dev/sitemap.xml

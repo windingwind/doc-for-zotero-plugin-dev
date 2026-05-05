@@ -1,6 +1,9 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+title: Dev Docs for Zotero Plugin
+titleTemplate: Build plugins for Zotero 7+
+description: Comprehensive developer documentation for building Zotero plugins — getting started guides, core concepts (lifecycle, data model, preferences, notifications), best practices for UI injection and Zotero APIs, and a complete API reference.
 
 hero:
   name: "Dev Docs"

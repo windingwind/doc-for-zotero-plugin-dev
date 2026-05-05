@@ -1,10 +1,77 @@
 import { defineConfig } from "vitepress";
 
+const SITE_BASE = "/doc-for-zotero-plugin-dev/";
+const SITE_HOSTNAME = "https://windingwind.github.io";
+const SITE_URL = `${SITE_HOSTNAME}${SITE_BASE}`;
+const SITE_TITLE = "Dev Docs for Zotero Plugin";
+const SITE_DESCRIPTION =
+  "Comprehensive developer documentation for building Zotero plugins: getting started guides, core concepts, best practices, and API reference for the Zotero 7+ plugin system.";
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Dev Docs for Zotero Plugin",
-  description: "Documents for Zotero Plugin Developers",
-  base: "/doc-for-zotero-plugin-dev/",
+  lang: "en-US",
+  title: SITE_TITLE,
+  titleTemplate: ":title | Dev Docs for Zotero Plugin",
+  description: SITE_DESCRIPTION,
+  base: SITE_BASE,
+  cleanUrls: true,
+  lastUpdated: true,
+  metaChunk: true,
+  sitemap: {
+    hostname: SITE_URL,
+  },
+  head: [
+    ["link", { rel: "icon", href: `${SITE_BASE}favicon.ico` }],
+    ["meta", { name: "theme-color", content: "#3c8772" }],
+    [
+      "meta",
+      {
+        name: "keywords",
+        content:
+          "Zotero, Zotero plugin, Zotero plugin development, Zotero 7, Zotero API, Zotero extension, plugin developer documentation, Zotero plugin tutorial, Zotero plugin SDK",
+      },
+    ],
+    ["meta", { name: "author", content: "windingwind" }],
+    ["meta", { name: "robots", content: "index, follow" }],
+    // Open Graph
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:site_name", content: SITE_TITLE }],
+    ["meta", { property: "og:locale", content: "en_US" }],
+    ["meta", { property: "og:title", content: SITE_TITLE }],
+    ["meta", { property: "og:description", content: SITE_DESCRIPTION }],
+    ["meta", { property: "og:url", content: SITE_URL }],
+    ["meta", { property: "og:image", content: `${SITE_URL}og-image.png` }],
+    // Twitter Card
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:title", content: SITE_TITLE }],
+    ["meta", { name: "twitter:description", content: SITE_DESCRIPTION }],
+    ["meta", { name: "twitter:image", content: `${SITE_URL}og-image.png` }],
+  ],
+  transformPageData(pageData) {
+    const canonicalPath = pageData.relativePath
+      .replace(/index\.md$/, "")
+      .replace(/\.md$/, "");
+    const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+    const pageTitle = pageData.title || pageData.frontmatter.title;
+    const description =
+      pageData.frontmatter.description ||
+      pageData.description ||
+      SITE_DESCRIPTION;
+
+    pageData.frontmatter.head ??= [];
+    pageData.frontmatter.head.push(
+      ["link", { rel: "canonical", href: canonicalUrl }],
+      ["meta", { property: "og:url", content: canonicalUrl }],
+      ["meta", { property: "og:description", content: description }],
+      ["meta", { name: "twitter:description", content: description }],
+    );
+    if (pageTitle) {
+      pageData.frontmatter.head.push(
+        ["meta", { property: "og:title", content: pageTitle }],
+        ["meta", { name: "twitter:title", content: pageTitle }],
+      );
+    }
+  },
   markdown: {
     config(md) {
       const defaultFence = md.renderer.rules.fence!;
